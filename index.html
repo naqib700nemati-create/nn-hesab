@@ -81,7 +81,7 @@ let D,T='home',Q='',PF='c',E,U=null;
 function load(){try{D=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 D=D||{s:{name:'نام شرکت',cur:'؋',lc:'مشتری',li:'جنس'},items:[],parties:[],docs:[],pays:[],exps:[],seq:1};
 D.ships=D.ships||[];D.projs=D.projs||[];D.users=D.users||[]}
-const APPV='2.0';
+const APPV='2.2';
 const IDB={db:null,open(cb){try{const r=indexedDB.open('nnhesab',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>{IDB.db=r.result;cb()};r.onerror=()=>cb();r.onblocked=()=>cb()}catch(e){cb()}},
 put(v){try{IDB.db&&IDB.db.transaction('k','readwrite').objectStore('k').put(v,'D')}catch(e){}},
 clear(){try{IDB.db&&IDB.db.transaction('k','readwrite').objectStore('k').clear()}catch(e){}},
@@ -128,7 +128,7 @@ const ROLE={admin:'مدیر',acct:'حسابدار',seller:'فروشنده'};
 const isA=()=>U&&U.role=='admin',isS=()=>U&&U.role=='seller';
 const tabsFor=()=>TABS.filter(t=>(t[0]!='co'||D.s.imp||D.s.con)&&(isA()||(U.role=='acct'?t[0]!='set':['inv','items','parties'].includes(t[0]))));
 const rnd=n=>{let r='',c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(let i=0;i<n;i++)r+=c[Math.floor(Math.random()*c.length)];return r};
-function boot(){closeM();applyTheme();U=D.users.find(u=>u.id==sget('hu'))||null;if(!D.users.length)setup();else if(!U)loginScr();else render()}
+function boot(){closeM();applyTheme();if(licLocked())return lockScreen();U=D.users.find(u=>u.id==sget('hu'))||null;if(!D.users.length)setup();else if(!U)loginScr();else render()}
 function entry(title,h){$('#nv').innerHTML='';$('#hn').innerHTML=hdr(title);$('#hu').style.display='none';$('#app').innerHTML=h+foot()}
 const PRE=[['shop','دوکان / سوپرمارکیت'],['pharm','دواخانه'],['imp','شرکت وارداتی و صادراتی'],['con','شرکت ساختمانی'],['gen','عمومی']];
 function setup(){entry('شروع کار','<div class="c"><b>تنظیم اولیه</b><label>نام شرکت یا دوکان<input id="s_n"></label><label>نوع کار<select id="s_t">'+PRE.map(p=>'<option value="'+p[0]+'">'+p[1]+'</option>').join('')+'</select></label><label>نام شما (مدیر)<input id="s_f"></label><label>نام کاربری<input id="s_u" autocapitalize="off"></label><label>رمز (حداقل ۴ حرف)<input id="s_p" type="password"></label><div class="bar"><button class="btn" onclick="doSetup()">شروع</button></div></div><div class="c"><b>قبلاً کاپی دارید؟</b><div class="m">کاپی را برگردانید؛ کاربرها و رمزها هم برمی‌گردند و رمز تازه لازم نیست.</div><div class="bar"><button class="btn g2" onclick="$(\'#rf2\').click()">برگرداندن از کاپی</button></div><input type="file" id="rf2" accept=".json" style="display:none" onchange="restore(this.files[0])"></div>')}
@@ -167,7 +167,7 @@ V.home=()=>{const t=today(),sd=D.docs.filter(d=>d.type=='sale'&&d.date==t);
 const ts=sum(sd,d=>d.total),pr=sum(sd,d=>sum(d.lines,l=>(l.price*dr(d)-(l.cost||0))*l.qty)-(d.disc||0)*dr(d));
 const rc=sum(D.parties.filter(p=>p.type=='c'),p=>Math.max(bal(p),0)),py=sum(D.parties.filter(p=>p.type=='s'),p=>Math.max(bal(p),0));
 const low=D.items.filter(i=>stock(i)<=i.min);
-return bkNote()+'<div class="d3"><div class="k" style="--k1:#19b87c;--k2:#0a6b4a"><small>فروش امروز</small><b>'+f(ts)+' '+cur()+'</b><small>≈ '+f(ts/RT())+' $</small></div><div class="k" style="--k1:#f4b627;--k2:#b4700a"><small>فایده امروز</small><b>'+f(pr)+' '+cur()+'</b><small>≈ '+f(pr/RT())+' $</small></div><div class="k" style="--k1:#3f93ec;--k2:#1b4c9a"><small>موجودی صندوق</small><b>'+f(cash())+' '+cur()+'</b><small>≈ '+f(cash()/RT())+' $</small></div><div class="k" style="--k1:#a96cf2;--k2:#5a2da6"><small>طلب از '+esc(D.s.lc)+'‌ها</small><b>'+f(rc)+' '+cur()+'</b><small>≈ '+f(rc/RT())+' $</small></div></div>'
+return licNote()+bkNote()+'<div class="d3"><div class="k" style="--k1:#19b87c;--k2:#0a6b4a"><small>فروش امروز</small><b>'+f(ts)+' '+cur()+'</b><small>≈ '+f(ts/RT())+' $</small></div><div class="k" style="--k1:#f4b627;--k2:#b4700a"><small>فایده امروز</small><b>'+f(pr)+' '+cur()+'</b><small>≈ '+f(pr/RT())+' $</small></div><div class="k" style="--k1:#3f93ec;--k2:#1b4c9a"><small>موجودی صندوق</small><b>'+f(cash())+' '+cur()+'</b><small>≈ '+f(cash()/RT())+' $</small></div><div class="k" style="--k1:#a96cf2;--k2:#5a2da6"><small>طلب از '+esc(D.s.lc)+'‌ها</small><b>'+f(rc)+' '+cur()+'</b><small>≈ '+f(rc/RT())+' $</small></div></div>'
 +'<div class="c r"><span>قرض به تمویل‌کننده‌ها</span><b>'+f(py)+' '+cur()+'</b></div>'+chart7()+(isA()||U.role=='acc'?'<div class="bar"><button class="btn g2" onclick="T=\'rep\';render()">گزارش ماهانه</button></div>':'')
 +'<div class="bar"><button class="btn" onclick="quick()">فروش سریع</button></div><div class="bar"><button class="btn g2" onclick="newDoc(\'sale\')">فروش با فاکتور</button><button class="btn g2" onclick="newDoc(\'purchase\')">خرید جدید</button></div>'
 +'<div class="c"><b>کمبود موجودی ('+low.length+')</b>'+(low.length?low.map(i=>'<div class="r m"><span>'+esc(i.name)+'</span><span class="bad">'+f(stock(i))+'</span></div>').join(''):'<div class="m">همه چیز کافی است.</div>')+'</div>'+foot()};
@@ -194,7 +194,7 @@ V.co=()=>(D.s.imp?'<h4>واردات و صادرات</h4><div class="bar"><button
 const yn=v=>'<select onchange="'+v+'"><option value="0">غیرفعال</option><option value="1" SEL>فعال</option></select>';
 V.set=()=>'<div class="c"><label>نام شرکت یا دوکان<input value="'+esc(D.s.name)+'" onchange="D.s.name=this.value;save();render(1)"></label><label>علامت پول<input value="'+esc(D.s.cur)+'" onchange="D.s.cur=this.value;save()"></label><label>نام «مشتری» در برنامه<input value="'+esc(D.s.lc)+'" onchange="D.s.lc=this.value;save()"></label><label>نام «جنس» در برنامه<input value="'+esc(D.s.li)+'" onchange="D.s.li=this.value;save()"></label><div class="m" style="margin-top:8px">مثلاً برای دواخانه: «مریض» و «دوا».</div><label>شماره تماس (روی چاپ)<input value="'+esc(D.s.phone||'')+'" onchange="D.s.phone=this.value;save()"></label><label>آدرس (روی چاپ)<input value="'+esc(D.s.addr||'')+'" onchange="D.s.addr=this.value;save()"></label><label>نرخ دالر (چند افغانی = ۱ دالر)<input type="number" inputmode="decimal" value="'+RT()+'" onchange="D.s.rate=+this.value||70;save()"></label></div>'
 +'<div class="c"><b>ماجول‌های شرکت</b><label>واردات و صادرات (محموله، گمرک، لاگت)'+yn('D.s.imp=+this.value;save();render()').replace('SEL',D.s.imp?'selected':'')+'</label><label>شرکت ساختمانی (پروژه، مواد، کارگر)'+yn('D.s.con=+this.value;save();render()').replace('SEL',D.s.con?'selected':'')+'</label></div>'
-+modeCard()+lookCard()+exportCard()+usersCard()+impCard()+'<div class="c"><b>کاپی اطلاعات</b><div class="m">هفته‌وار کاپی بگیرید و در جای امن نگه دارید.</div><div class="bar"><button class="btn" onclick="backup()">گرفتن کاپی</button><button class="btn g2" onclick="$(\'#rf\').click()">برگرداندن کاپی</button></div><input type="file" id="rf" accept=".json" style="display:none" onchange="restore(this.files[0])"></div>'
++modeCard()+lookCard()+exportCard()+licCard()+usersCard()+impCard()+'<div class="c"><b>کاپی اطلاعات</b><div class="m">هفته‌وار کاپی بگیرید و در جای امن نگه دارید.</div><div class="bar"><button class="btn" onclick="backup()">گرفتن کاپی</button><button class="btn g2" onclick="$(\'#rf\').click()">برگرداندن کاپی</button></div><input type="file" id="rf" accept=".json" style="display:none" onchange="restore(this.files[0])"></div>'
 +'<div class="c"><button class="btn d" onclick="resetAll()">پاک کردن همه اطلاعات</button></div>'+foot();
 
 function backup(){D.s.lastBk=today();save();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(D)],{type:'application/json'}));a.download='nn-hesab-backup-'+today()+'.json';a.click()}
@@ -304,6 +304,41 @@ D.exps.push({id:id(),date:today(),cat:v.cat,amount:v.amount,note:v.note,proj:i})
 function projRec(i){form('دریافت از کارفرما',[{k:'amount',l:'مبلغ',t:'number'},{k:'note',l:'توضیح'}],v=>{if(v.amount<=0){toast('مبلغ را بنویسید');return false}
 D.pays.push({id:id(),date:today(),party:null,dir:'in',amount:v.amount,note:'پروژه '+D.projs.find(x=>x.id==i).name+(v.note?' – '+v.note:''),proj:i});back(()=>projView(i))})}
 function projRm(i){if(confirm('پروژه با همه مصارف و دریافت‌هایش حذف شود؟')){D.exps=D.exps.filter(e=>e.proj!=i);D.pays=D.pays.filter(y=>y.proj!=i);D.projs=D.projs.filter(x=>x.id!=i);save();closeM();render()}}
+
+/* ===== لایسنس: کد فعال‌سازی برای هر دستگاه (کار می‌کند بدون انترنت) ===== */
+const PUB={"crv":"P-256","ext":true,"key_ops":["verify"],"kty":"EC","x":"eexAbmZNka9dRsmamIzU4NtvA_X6ZxEBfiP6JNjsB7I","y":"mWsOh9MZsLO2zf-ObovQD8NkWXC00iihFKCtasNbCvQ"}; // کلید عمومی (JWK) سازنده کد. اگر null شود، قفل خاموش می‌شود.
+const TRIAL_DAYS=14,PH=['0728166262','0788809892'];
+let LIC={mode:'open'};
+const b2u=t=>{t=String(t).replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';return Uint8Array.from(atob(t),c=>c.charCodeAt(0))};
+const dayAdd=(d,n)=>new Date(new Date(d+'T12:00:00').getTime()+n*864e5).toISOString().slice(0,10);
+const dayDiff=(a,b)=>Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5);
+function devId(){let d=null;try{d=localStorage.getItem('nn_dev')}catch(e){}if(!d){d=rnd(12).toUpperCase();try{localStorage.setItem('nn_dev',d)}catch(e){}}return d}
+const devFmt=d=>d.replace(/(.{4})(?=.)/g,'$1-');
+function licTick(){if(!PUB){LIC={mode:'open'};return}
+const t=today();let seen='';try{seen=localStorage.getItem('nn_seen')||''}catch(e){}
+if(seen&&t<dayAdd(seen,-2)){LIC.mode='locked';LIC.why='ساعت دستگاه عقب برده شده است. ساعت را درست کنید.';return}
+try{if(!seen||t>seen)localStorage.setItem('nn_seen',t)}catch(e){}
+if(LIC.pay){const e=LIC.pay.e;if(!e||t<=e){LIC.mode='ok';LIC.days=e?dayDiff(t,e):null;return}LIC.mode='locked';LIC.why='مدت فعال‌سازی تمام شده است.';return}
+let st='';try{st=localStorage.getItem('nn_trial')||'';if(!st){st=t;localStorage.setItem('nn_trial',st)}}catch(e){st=t}
+const left=TRIAL_DAYS-dayDiff(st,t);if(left>0){LIC.mode='trial';LIC.days=left}else{LIC.mode='locked';LIC.why='دوره آزمایشی تمام شده است.'}}
+async function licVerify(code){try{const q=String(code).trim().split('.');if(q.length!=2||!q[0]||!q[1])return{err:'کد درست نیست'};
+const k=await crypto.subtle.importKey('jwk',PUB,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
+if(!await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},k,b2u(q[1]),new TextEncoder().encode(q[0])))return{err:'کد درست نیست'};
+const pay=JSON.parse(new TextDecoder().decode(b2u(q[0])));if(String(pay.d)!=devId())return{err:'این کد برای دستگاه دیگری ساخته شده است'};return{pay}}
+catch(e){return{err:(window.crypto&&crypto.subtle)?'کد درست نیست':'برای فعال‌سازی، برنامه را از آدرس رسمی (https) باز کنید'}}}
+function licInit(cb){if(!PUB){LIC={mode:'open'};return cb()}let c='';try{c=localStorage.getItem('nn_lic')||''}catch(e){}
+if(!c){LIC={};licTick();return cb()}licVerify(c).then(r=>{LIC=r.pay?{pay:r.pay}:{};licTick();cb()})}
+const licLocked=()=>{licTick();return LIC.mode=='locked'};
+function licCopy(){const d=devFmt(devId());try{navigator.clipboard.writeText(d).then(()=>toast('شناسه کاپی شد'),()=>toast(d))}catch(e){toast(d)}}
+async function licAct(el){const c=($(el).value||'').trim();if(!c)return toast('کد را بنویسید');const r=await licVerify(c);if(r.err)return toast(r.err);
+try{localStorage.setItem('nn_lic',c)}catch(e){}LIC={pay:r.pay};licTick();toast('فعال شد');closeM();boot()}
+function lockScreen(){entry('فعال‌سازی NN حساب','<div class="c"><b>'+esc(LIC.why||'برنامه فعال نیست')+'</b><div class="m" style="margin-top:6px">برای فعال‌سازی، شناسه این دستگاه را برای «ترتیب‌کننده» بفرستید و کد فعال‌سازی را در پایین بنویسید. اطلاعات شما پاک نشده است.</div>'
++'<div class="c" style="text-align:center;margin-top:12px"><small>شناسه دستگاه</small><div style="font-size:22px;letter-spacing:2px;direction:ltr"><b>'+devFmt(devId())+'</b></div><div class="bar"><button class="btn g2" onclick="licCopy()">کاپی شناسه</button></div></div>'
++'<label>کد فعال‌سازی<textarea id="lc" rows="4" style="width:100%;padding:10px;border:1px solid var(--ln);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;direction:ltr"></textarea></label><div class="bar"><button class="btn" onclick="licAct(\'#lc\')">فعال کردن</button></div>'
++'<div class="bar">'+PH.map(p=>'<a class="btn g2" href="tel:'+p+'" style="text-decoration:none;text-align:center;direction:ltr">'+p+'</a>').join('')+'</div><div class="bar"><button class="btn g2" onclick="backup()">گرفتن کاپی از اطلاعات</button></div></div>')}
+function licNote(){if(LIC.mode=='trial'||(LIC.mode=='ok'&&LIC.days!=null&&LIC.days<=14))return '<div class="c" style="border:2px solid var(--ac)"><b>'+(LIC.mode=='trial'?'دوره آزمایشی: '+LIC.days+' روز مانده':'فعال‌سازی: '+LIC.days+' روز مانده')+'</b><div class="m">برای ادامه، کد فعال‌سازی لازم است.</div><div class="bar"><button class="btn g2" onclick="T=\'set\';render()">فعال‌سازی</button></div></div>';return ''}
+function licCard(){if(LIC.mode=='open')return '';const st=LIC.mode=='ok'?'فعال برای: '+esc(LIC.pay.n||'')+(LIC.pay.e?' · تا '+fd(LIC.pay.e)+' ('+LIC.days+' روز مانده)':' · دائمی'):'دوره آزمایشی: '+LIC.days+' روز مانده';
+return '<div class="c"><b>فعال‌سازی</b><div class="m">'+st+'</div><div class="c" style="text-align:center;margin-top:10px"><small>شناسه دستگاه</small><div style="font-size:20px;letter-spacing:2px;direction:ltr"><b>'+devFmt(devId())+'</b></div></div><label>کد فعال‌سازی تازه<textarea id="lc2" rows="3" style="width:100%;padding:10px;border:1px solid var(--ln);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;direction:ltr"></textarea></label><div class="bar"><button class="btn g2" onclick="licAct(\'#lc2\')">ثبت کد</button></div></div>'}
 
 /* ===== نرخ دالر، ظاهر، لوگو، چاپ A4، صفحه مشتری ===== */
 const RT=()=>+D.s.rate||70,dr=d=>d.cur=='USD'?(+d.rate||RT()):1,cs=c=>c=='USD'?'$':cur();
@@ -438,11 +473,11 @@ function qCart(){const t=sum(CT,l=>l.qty*D.items.find(i=>i.id==l.item).price);$(
 function qSave(){if(!CT.length)return toast('چیزی انتخاب نشده');E={type:'sale',party:null,lines:CT.map(l=>({item:l.item,qty:l.qty,price:D.items.find(i=>i.id==l.item).price})),paid:'',disc:''};saveDoc()}
 
 const TABS=[['home','خانه'],['inv','فاکتور'],['items','اجناس'],['parties','اشخاص'],['cash','صندوق'],['co','شرکت'],['set','تنظیمات']];
-function render(keep){if(!U)return;const tb=tabsFor();if(!tb.some(t=>t[0]==T)&&T!='pv'&&T!='debts'&&T!='rep')T=tb[0][0];$('#hn').innerHTML=hdr(D.s.name);$('#hu').style.display='';$('#hu').textContent=U.name;
+function render(keep){if(licLocked())return lockScreen();if(!U)return;const tb=tabsFor();if(!tb.some(t=>t[0]==T)&&T!='pv'&&T!='debts'&&T!='rep')T=tb[0][0];$('#hn').innerHTML=hdr(D.s.name);$('#hu').style.display='';$('#hu').textContent=U.name;
 $('#nv').innerHTML=tb.map(t=>'<button class="'+((T==t[0]||(t[0]=='parties'&&(T=='pv'||T=='debts')))?'on':'')+'" onclick="T=\''+t[0]+'\';Q=\'\';render()">'+t[1]+'</button>').join('');
 const a=keep&&document.activeElement&&document.activeElement.tagName=='INPUT'?document.activeElement.selectionStart:null;
 $('#app').innerHTML=V[T]();if(a!==null){const e=$('#app input');if(e){e.focus();e.setSelectionRange(a,a)}}else if(!keep)scrollTo(0,0)}
-load();IDB.open(()=>{const go=()=>{boot();try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}};
+load();IDB.open(()=>{const go=()=>{licInit(()=>boot());try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}};
 if(D.users.length||!IDB.db)return go();
 IDB.get(r=>{try{const x=JSON.parse(r);if(x&&x.users&&x.users.length){D=x;D.ships=D.ships||[];D.projs=D.projs||[];save();setTimeout(()=>toast('اطلاعات از نسخه پشتیبان مرورگر برگردانده شد'),400)}}catch(e){}go()})});
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
