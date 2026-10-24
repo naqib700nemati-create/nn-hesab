@@ -81,14 +81,18 @@ let D,T='home',Q='',PF='c',E,U=null;
 function load(){try{D=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 D=D||{s:{name:'نام شرکت',cur:'؋',lc:'مشتری',li:'جنس'},items:[],parties:[],docs:[],pays:[],exps:[],seq:1};
 D.ships=D.ships||[];D.projs=D.projs||[];D.users=D.users||[]}
-const APPV='2.2';
+const APPV='2.4';
 const IDB={db:null,open(cb){try{const r=indexedDB.open('nnhesab',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>{IDB.db=r.result;cb()};r.onerror=()=>cb();r.onblocked=()=>cb()}catch(e){cb()}},
 put(v){try{IDB.db&&IDB.db.transaction('k','readwrite').objectStore('k').put(v,'D')}catch(e){}},
-clear(){try{IDB.db&&IDB.db.transaction('k','readwrite').objectStore('k').clear()}catch(e){}},
+clear(){IDB.delK('D')},
+putK(k,v){try{IDB.db&&IDB.db.transaction('k','readwrite').objectStore('k').put(v,k)}catch(e){}},
+delK(k){try{IDB.db&&IDB.db.transaction('k','readwrite').objectStore('k').delete(k)}catch(e){}},
+getK(k,cb){try{const q=IDB.db.transaction('k').objectStore('k').get(k);q.onsuccess=()=>cb(q.result);q.onerror=()=>cb(null)}catch(e){cb(null)}},
+keys(cb){try{const q=IDB.db.transaction('k').objectStore('k').getAllKeys();q.onsuccess=()=>cb(q.result||[]);q.onerror=()=>cb([])}catch(e){cb([])}},
 get(cb){try{const q=IDB.db.transaction('k').objectStore('k').get('D');q.onsuccess=()=>cb(q.result);q.onerror=()=>cb(null)}catch(e){cb(null)}}};
-function save(){try{const j=JSON.stringify(D);IDB.put(j);localStorage.setItem(KEY,j)}catch(e){toast('ذخیره نشد؛ حافظه مرورگر بسته است')}}
+function save(){try{D.at=Date.now();const j=JSON.stringify(D);IDB.put(j);localStorage.setItem(KEY,j);if(!NOSYNC)syncSoon()}catch(e){saveFail()}}
 const $=s=>document.querySelector(s);
-const id=()=>D.seq++;
+const id=()=>{let n=Date.now()*1000+Math.floor(Math.random()*1000);if(D.lid&&n<=D.lid)n=D.lid+1;D.lid=n;return n};
 const f=x=>(Math.round((+x||0)*100)/100).toLocaleString('en');
 const today=()=>new Date().toISOString().slice(0,10);
 const fd=d=>{try{return new Date(d).toLocaleDateString('fa-AF-u-ca-persian-nu-latn')}catch(e){return d}};
@@ -115,7 +119,7 @@ function lg(full){const g=GD.replace('GID',full?'gf':'gm'),u='url(#'+(full?'gf':
 return full?'<svg viewBox="0 0 380 345" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:280px;display:block;margin:0 auto;border-radius:12px">'+g+'<rect width="380" height="345" rx="12" fill="#0B1426"/>'+mark+'<path d="M298 58l4 12 12 4-12 4-4 12-4-12-12-4 12-4z" fill="#FFEFB0"/><path d="M318 100l2.5 7 7 2.5-7 2.5-2.5 7-2.5-7-7-2.5 7-2.5z" fill="#E8B84A"/><path d="M72 205l2.5 7 7 2.5-7 2.5-2.5 7-2.5-7-7-2.5 7-2.5z" fill="#E8B84A"/><text x="190" y="305" text-anchor="middle" font-size="24" font-weight="500" letter-spacing="7" fill="'+u+'" font-family="Georgia,serif">NAQIB NEMATI</text><text x="190" y="326" text-anchor="middle" font-size="11" letter-spacing="4" fill="#9AA4B8" font-family="sans-serif">PERSONAL BRAND</text></svg>'
 :'<svg viewBox="70 30 240 240" xmlns="http://www.w3.org/2000/svg">'+g+'<rect x="70" y="30" width="240" height="240" rx="48" fill="#0B1426"/>'+mark+'</svg>'}
 const foot=()=>'<div class="ft" onclick="about()">'+lg(0)+'<span>NN حساب · ترتیب‌کننده: نقیب نعمتی</span></div>';
-function about(){modal(lg(1)+'<h3 style="text-align:center;margin:14px 0 0">NN حساب</h3><div class="m" style="text-align:center">نسخه '+APPV+'</div><p class="m" style="text-align:center;margin:4px 0 0">این برنامه توسط نقیب نعمتی ترتیب و تنظیم شده است.</p><p class="m" style="text-align:center;margin:12px 0 0">برای پشتیبانی و سفارش برنامه:</p><div class="bar"><a class="btn" href="tel:0728166262" style="text-decoration:none;text-align:center;direction:ltr">0728166262</a><a class="btn" href="tel:0788809892" style="text-decoration:none;text-align:center;direction:ltr">0788809892</a></div><div class="bar"><button class="btn g2" onclick="closeM()">بستن</button></div>')}
+function about(){modal(lg(1)+'<h3 style="text-align:center;margin:14px 0 0">NN حساب</h3><div class="m" style="text-align:center" onclick="devTap()">نسخه '+APPV+'</div><p class="m" style="text-align:center;margin:4px 0 0">این برنامه توسط نقیب نعمتی ترتیب و تنظیم شده است.</p><p class="m" style="text-align:center;margin:12px 0 0">برای پشتیبانی و سفارش برنامه:</p><div class="bar"><a class="btn" href="tel:0728166262" style="text-decoration:none;text-align:center;direction:ltr">0728166262</a><a class="btn" href="tel:0788809892" style="text-decoration:none;text-align:center;direction:ltr">0788809892</a></div><div class="bar"><button class="btn g2" onclick="closeM()">بستن</button></div>')}
 
 
 const sget=k=>{try{return sessionStorage.getItem(k)}catch(e){return null}},sset=(k,v)=>{try{sessionStorage.setItem(k,v)}catch(e){}};
@@ -131,7 +135,7 @@ const rnd=n=>{let r='',c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(let i=0;i<n;i++)
 function boot(){closeM();applyTheme();if(licLocked())return lockScreen();U=D.users.find(u=>u.id==sget('hu'))||null;if(!D.users.length)setup();else if(!U)loginScr();else render()}
 function entry(title,h){$('#nv').innerHTML='';$('#hn').innerHTML=hdr(title);$('#hu').style.display='none';$('#app').innerHTML=h+foot()}
 const PRE=[['shop','دوکان / سوپرمارکیت'],['pharm','دواخانه'],['imp','شرکت وارداتی و صادراتی'],['con','شرکت ساختمانی'],['gen','عمومی']];
-function setup(){entry('شروع کار','<div class="c"><b>تنظیم اولیه</b><label>نام شرکت یا دوکان<input id="s_n"></label><label>نوع کار<select id="s_t">'+PRE.map(p=>'<option value="'+p[0]+'">'+p[1]+'</option>').join('')+'</select></label><label>نام شما (مدیر)<input id="s_f"></label><label>نام کاربری<input id="s_u" autocapitalize="off"></label><label>رمز (حداقل ۴ حرف)<input id="s_p" type="password"></label><div class="bar"><button class="btn" onclick="doSetup()">شروع</button></div></div><div class="c"><b>قبلاً کاپی دارید؟</b><div class="m">کاپی را برگردانید؛ کاربرها و رمزها هم برمی‌گردند و رمز تازه لازم نیست.</div><div class="bar"><button class="btn g2" onclick="$(\'#rf2\').click()">برگرداندن از کاپی</button></div><input type="file" id="rf2" accept=".json" style="display:none" onchange="restore(this.files[0])"></div>')}
+function setup(){entry('شروع کار','<div class="c"><b>تنظیم اولیه</b><label>نام شرکت یا دوکان<input id="s_n"></label><label>نوع کار<select id="s_t">'+PRE.map(p=>'<option value="'+p[0]+'">'+p[1]+'</option>').join('')+'</select></label><label>نام شما (مدیر)<input id="s_f"></label><label>نام کاربری<input id="s_u" autocapitalize="off"></label><label>رمز (حداقل ۴ حرف)<input id="s_p" type="password"></label><div class="bar"><button class="btn" onclick="doSetup()">شروع</button></div></div><div class="c"><b>قبلاً کاپی دارید؟</b><div class="m">کاپی را برگردانید؛ کاربرها و رمزها هم برمی‌گردند و رمز تازه لازم نیست.</div><div class="bar"><button class="btn g2" onclick="$(\'#rf2\').click()">برگرداندن از کاپی</button>'+(SB()?'<button class="btn g2" onclick="syLoginBox()">ورود با حساب آنلاین</button>':'')+'</div><input type="file" id="rf2" accept=".json" style="display:none" onchange="restore(this.files[0])"></div>')}
 function doSetup(){const n=$('#s_n').value.trim(),t=$('#s_t').value,f=$('#s_f').value.trim(),u=$('#s_u').value.trim().toLowerCase(),p=$('#s_p').value;
 if(!n||!f||!u)return toast('همه خانه‌ها را پر کنید');if(p.length<4)return toast('رمز حداقل ۴ حرف باشد');
 D.s.name=n;if(t=='pharm'){D.s.lc='مریض';D.s.li='دوا'}if(t=='imp')D.s.imp=1;if(t=='con'){D.s.con=1;D.s.lc='کارفرما';D.s.li='مواد'}
@@ -161,7 +165,7 @@ if(u.id&&u.role=='admin'&&v.role!='admin'&&D.users.filter(x=>x.role=='admin').le
 if(u.id){u.name=v.name;u.user=v.user;u.role=v.role;if(v.p)u.pass=hp(v.p,u.salt)}else{const salt=rnd(8);D.users.push({id:id(),name:v.name,user:v.user,role:v.role,salt,pass:hp(v.p,salt)})}},
 u.id&&u.id!=U.id?'<div class="bar"><button class="btn d" onclick="delUser('+u.id+')">حذف کاربر</button></div>':'')}
 function delUser(i){const u=D.users.find(x=>x.id==i);if(u.role=='admin'&&D.users.filter(x=>x.role=='admin').length<2)return toast('باید حداقل یک مدیر بماند');if(confirm('حذف شود؟')){D.users=D.users.filter(x=>x.id!=i);save();closeM();render()}}
-function resetAll(){if(confirm('همه اطلاعات و کاربران پاک می‌شود. مطمئن هستید؟')){localStorage.removeItem(KEY);IDB.clear();load();U=null;sset('hu','');boot()}}
+function resetAll(){if(confirm('همه اطلاعات و کاربران پاک می‌شود. مطمئن هستید؟')){snapNow('قبل از پاک کردن همه اطلاعات');localStorage.removeItem(KEY);IDB.clear();load();U=null;sset('hu','');boot()}}
 const V={};
 V.home=()=>{const t=today(),sd=D.docs.filter(d=>d.type=='sale'&&d.date==t);
 const ts=sum(sd,d=>d.total),pr=sum(sd,d=>sum(d.lines,l=>(l.price*dr(d)-(l.cost||0))*l.qty)-(d.disc||0)*dr(d));
@@ -194,11 +198,11 @@ V.co=()=>(D.s.imp?'<h4>واردات و صادرات</h4><div class="bar"><button
 const yn=v=>'<select onchange="'+v+'"><option value="0">غیرفعال</option><option value="1" SEL>فعال</option></select>';
 V.set=()=>'<div class="c"><label>نام شرکت یا دوکان<input value="'+esc(D.s.name)+'" onchange="D.s.name=this.value;save();render(1)"></label><label>علامت پول<input value="'+esc(D.s.cur)+'" onchange="D.s.cur=this.value;save()"></label><label>نام «مشتری» در برنامه<input value="'+esc(D.s.lc)+'" onchange="D.s.lc=this.value;save()"></label><label>نام «جنس» در برنامه<input value="'+esc(D.s.li)+'" onchange="D.s.li=this.value;save()"></label><div class="m" style="margin-top:8px">مثلاً برای دواخانه: «مریض» و «دوا».</div><label>شماره تماس (روی چاپ)<input value="'+esc(D.s.phone||'')+'" onchange="D.s.phone=this.value;save()"></label><label>آدرس (روی چاپ)<input value="'+esc(D.s.addr||'')+'" onchange="D.s.addr=this.value;save()"></label><label>نرخ دالر (چند افغانی = ۱ دالر)<input type="number" inputmode="decimal" value="'+RT()+'" onchange="D.s.rate=+this.value||70;save()"></label></div>'
 +'<div class="c"><b>ماجول‌های شرکت</b><label>واردات و صادرات (محموله، گمرک، لاگت)'+yn('D.s.imp=+this.value;save();render()').replace('SEL',D.s.imp?'selected':'')+'</label><label>شرکت ساختمانی (پروژه، مواد، کارگر)'+yn('D.s.con=+this.value;save();render()').replace('SEL',D.s.con?'selected':'')+'</label></div>'
-+modeCard()+lookCard()+exportCard()+licCard()+usersCard()+impCard()+'<div class="c"><b>کاپی اطلاعات</b><div class="m">هفته‌وار کاپی بگیرید و در جای امن نگه دارید.</div><div class="bar"><button class="btn" onclick="backup()">گرفتن کاپی</button><button class="btn g2" onclick="$(\'#rf\').click()">برگرداندن کاپی</button></div><input type="file" id="rf" accept=".json" style="display:none" onchange="restore(this.files[0])"></div>'
++modeCard()+lookCard()+exportCard()+licCard()+syCard()+usersCard()+impCard()+'<div class="c"><b>کاپی اطلاعات</b><div class="m">هفته‌وار کاپی بگیرید و در جای امن نگه دارید.</div><div class="bar"><button class="btn" onclick="backup()">گرفتن کاپی</button><button class="btn g2" onclick="$(\'#rf\').click()">برگرداندن کاپی</button></div><input type="file" id="rf" accept=".json" style="display:none" onchange="restore(this.files[0])"></div>'
 +'<div class="c"><button class="btn d" onclick="resetAll()">پاک کردن همه اطلاعات</button></div>'+foot();
 
 function backup(){D.s.lastBk=today();save();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(D)],{type:'application/json'}));a.download='nn-hesab-backup-'+today()+'.json';a.click()}
-function restore(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.items||!x.docs)throw 0;D=x;D.ships=D.ships||[];D.projs=D.projs||[];D.users=D.users||[];save();U=null;sset('hu','');boot();toast('کاپی برگردانده شد')}catch(e){toast('فایل درست نیست')}};r.readAsText(file)}
+function restore(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.items||!x.docs)throw 0;snapNow('قبل از برگرداندن کاپی');D=x;D.ships=D.ships||[];D.projs=D.projs||[];D.users=D.users||[];save();U=null;sset('hu','');boot();toast('کاپی برگردانده شد')}catch(e){toast('فایل درست نیست')}};r.readAsText(file)}
 
 let RET=0;
 function itemForm(i,r){if(isS())return;RET=r?1:0;const it=D.items.find(x=>x.id==i)||{};
@@ -215,7 +219,7 @@ modal('<h3>'+esc(p.name)+'</h3><div class="m">'+esc(p.phone||'')+'</div>'+(p.not
 +'<div class="bar"><button class="btn" onclick="payForm('+i+')">'+(p.type=='c'?'دریافت پول':'پرداخت پول')+'</button><button class="btn g2" onclick="partyForm('+i+')">ویرایش</button>'+(isS()?'':'<button class="btn d" onclick="delParty('+i+')">حذف</button>')+'</div>'
 +rows.map(r=>'<div class="r m" style="padding:4px 0"><span>'+fd(r.d)+' · '+esc(r.t)+'</span><span>'+f(r.a)+'</span></div>').join(''))}
 function delParty(i){const h=D.docs.some(d=>d.party==i)||D.pays.some(y=>y.party==i);if(D.ships.some(x=>x.sup==i)||D.projs.some(p=>p.client==i))return toast('در محموله یا پروژه استفاده شده؛ حذف نمی‌شود');
-if(confirm(h?'همه فاکتورها و رسیدهای این شخص هم حذف می‌شود. مطمئن هستید؟':'حذف شود؟')){D.docs=D.docs.filter(d=>d.party!=i);D.pays=D.pays.filter(y=>y.party!=i);D.parties=D.parties.filter(x=>x.id!=i);save();closeM();T='parties';render()}}
+if(confirm(h?'همه فاکتورها و رسیدهای این شخص هم حذف می‌شود. مطمئن هستید؟':'حذف شود؟')){if(h)snapNow('قبل از حذف '+((D.parties.find(x=>x.id==i)||{}).name||'مشتری'));D.docs=D.docs.filter(d=>d.party!=i);D.pays=D.pays.filter(y=>y.party!=i);D.parties=D.parties.filter(x=>x.id!=i);save();closeM();T='parties';render()}}
 function payForm(i){const p=D.parties.find(x=>x.id==i);
 form(p.type=='c'?'دریافت پول':'پرداخت پول',[{k:'cur',l:'پول',t:'select',o:[['AFN','افغانی'],['USD','دالر (نرخ '+f(RT())+')']]},{k:'amount',l:'مبلغ',t:'number'},{k:'note',l:'توضیح'}],v=>{if(v.amount<=0){toast('مبلغ را بنویسید');return false}
 const u=v.cur=='USD';D.pays.push({id:id(),date:today(),party:i,dir:p.type=='c'?'in':'out',amount:Math.round(v.amount*(u?RT():1)*100)/100,note:(v.note||'')+(u?' ('+f(v.amount)+' $)':'')})})}
@@ -241,7 +245,7 @@ if(E.type=='sale'){const bad=ls.find(l=>l.qty>stock(D.items.find(x=>x.id==l.item
 const k=E.cur=='USD'?(+E.rate||RT()):1,subC=sum(ls,l=>l.qty*l.price),disc=Math.min(+E.disc||0,subC),totC=subC-disc,paidC=E.paid===''?(E.party?0:totC):Math.min(+E.paid||0,totC);
 const total=Math.round(totC*k*100)/100,paid=Math.round(paidC*k*100)/100;
 if(old){D.docs=D.docs.filter(x=>x.id!=old.id);D.pays=D.pays.filter(y=>y.doc!=old.id)}
-const n=old?old.id:id(),d={id:n,no:old?old.no:(E.type=='sale'?'ف-':'خ-')+n,type:E.type,date:old?old.date:today(),party:E.party,lines:ls,total,paid,disc,by:old?old.by:U.id};
+const n=old?old.id:id(),d={id:n,no:old?old.no:nextNo(E.type=='sale'?'ف-':'خ-'),type:E.type,date:old?old.date:today(),party:E.party,lines:ls,total,paid,disc,by:old?old.by:U.id};
 if(E.cur=='USD'){d.cur='USD';d.rate=k}
 D.docs.push(d);if(paid>0)D.pays.push({id:id(),date:d.date,party:E.party,dir:E.type=='sale'?'in':'out',amount:paid,doc:n,note:'فاکتور '+d.no});
 save();closeM();render();toast('ذخیره شد');if(rc)viewDoc(n)}
@@ -275,9 +279,9 @@ function shipCost(i){const s=D.ships.find(x=>x.id==i);form('مصرف محمول�
 const e=id();s.costs.push({id:e,t:v.t,amount:v.amount,date:today()});D.exps.push({id:e,date:today(),cat:'محموله '+s.no,amount:v.amount,note:v.t});back(()=>shipView(i))})}
 function shipDel(i,w,k){const s=D.ships.find(x=>x.id==i);if(w=='costs')D.exps=D.exps.filter(e=>e.id!=s.costs[k].id);s[w].splice(k,1);save();shipView(i);render(1)}
 function shipRecv(i){const s=D.ships.find(x=>x.id==i),L=landed(s);
-if(s.kind=='exp'){if(!confirm('اجناس از گدام کم و فاکتور فروش ساخته شود؟'))return;const n=id();D.docs.push({id:n,no:'ص-'+n,type:'sale',date:today(),party:s.sup,lines:L.rows.map(r=>({item:r.item,qty:r.qty,price:r.buy,cost:(D.items.find(t=>t.id==r.item)||{}).cost||0})),total:L.goods,paid:0,disc:0,by:U.id});s.recv=n;s.status='arrived';save();shipView(i);render(1);toast('صادر شد');return}
+if(s.kind=='exp'){if(!confirm('اجناس از گدام کم و فاکتور فروش ساخته شود؟'))return;const n=id();D.docs.push({id:n,no:nextNo('ص-'),type:'sale',date:today(),party:s.sup,lines:L.rows.map(r=>({item:r.item,qty:r.qty,price:r.buy,cost:(D.items.find(t=>t.id==r.item)||{}).cost||0})),total:L.goods,paid:0,disc:0,by:U.id});s.recv=n;s.status='arrived';save();shipView(i);render(1);toast('صادر شد');return}
 if(!confirm('اجناس به گدام داخل شود؟'))return;
-const n=id();D.docs.push({id:n,no:'و-'+n,type:'purchase',date:today(),party:s.sup,lines:L.rows.map(r=>({item:r.item,qty:r.qty,price:r.buy,cost:0})),total:L.goods,paid:0});
+const n=id();D.docs.push({id:n,no:nextNo('و-'),type:'purchase',date:today(),party:s.sup,lines:L.rows.map(r=>({item:r.item,qty:r.qty,price:r.buy,cost:0})),total:L.goods,paid:0});
 L.rows.forEach(r=>{const it=D.items.find(x=>x.id==r.item);if(it)it.cost=Math.round(r.unit*100)/100});s.recv=n;s.status='arrived';save();shipView(i);render(1);toast('داخل گدام شد')}
 function shipRm(i){const s=D.ships.find(x=>x.id==i);if(s.recv)return toast('داخل گدام شده؛ حذف نمی‌شود');if(confirm('حذف شود؟')){D.exps=D.exps.filter(e=>!s.costs.some(c=>c.id==e.id));D.ships=D.ships.filter(x=>x.id!=i);save();closeM();render()}}
 
@@ -347,8 +351,9 @@ const hdr=t=>(D.s.logo?'<img src="'+D.s.logo+'"> ':'')+esc(t);
 const sdt=d=>{const x=fd(d);const k=x.indexOf('/');return k>0?x.slice(k+1):x};
 function chart7(){const a=[];for(let i=6;i>=0;i--){const d=new Date(Date.now()-i*864e5).toISOString().slice(0,10);a.push([d,sum(D.docs.filter(x=>x.type=='sale'&&x.date==d),x=>x.total)])}const mx=Math.max(1,...a.map(x=>x[1]));
 return '<div class="c"><b>فروش ۷ روز اخیر</b><div class="ch">'+a.map(x=>'<div class="cb"><small>'+(x[1]?f(x[1]):'')+'</small><i style="height:'+Math.max(5,Math.round(x[1]/mx*100))+'px"></i><small>'+sdt(x[0])+'</small></div>').join('')+'</div></div>'}
-function bkNote(){if(!isA()||!(D.items.length||D.docs.length))return '';const l=D.s.lastBk;if(l&&(Date.now()-new Date(l))<7*864e5)return '';
-return '<div class="c" style="border:2px solid var(--bad)"><b>کاپی بگیرید</b><div class="m">'+(l?'آخرین کاپی: '+fd(l):'تا حالا کاپی نگرفته‌اید')+'. با کاپی، اطلاعات و رمزها هنگام تازه کردن برنامه یا عوض کردن دستگاه برمی‌گردد.</div><div class="bar"><button class="btn" onclick="backup();render()">گرفتن کاپی</button></div></div>'}
+function safeLvl(){if(!(D.items.length||D.docs.length||D.parties.length))return 0;const n=Date.now(),bk=D.s.lastBk?(n-new Date(D.s.lastBk))/864e5:99,sy=(SY.tok&&SY.last&&!SY.err)?(n-SY.last)/864e5:99;if(sy<=2||bk<=3)return 0;return bk<=14?1:2}
+function bkNote(){if(!(isA()||(U&&U.role=='acc')))return '';const l=safeLvl();if(!l)return '';
+return '<div class="c" style="border:2px solid '+(l==2?'var(--bad)':'#d89a1b')+'"><b>'+(l==2?'اطلاعات شما در خطر است':'وقت کاپی گرفتن است')+'</b><div class="m">'+(D.s.lastBk?'آخرین کاپی: '+fd(D.s.lastBk):'تا حالا کاپی بیرون از دستگاه نگرفته‌اید')+'. کاپی را به تلگرام، واتساپ یا ایمیل خودتان بفرستید تا اگر موبایل خراب یا پاک شد، اطلاعات نپرد.</div><div class="bar"><button class="btn" onclick="shareBackup()">ارسال کاپی</button><button class="btn g2" onclick="backup();render()">ذخیره در گوشی</button></div></div>'}
 function applyPre(t){if(!confirm('نوع کار عوض شود؟ اطلاعات شما پاک نمی‌شود.'))return;const m={shop:['مشتری','جنس',0,0],pharm:['مریض','دوا',0,0],imp:['مشتری','جنس',1,0],con:['کارفرما','مواد',0,1],gen:['مشتری','جنس',0,0]}[t];D.s.type=t;D.s.lc=m[0];D.s.li=m[1];D.s.imp=m[2];D.s.con=m[3];save();render();toast('نوع کار عوض شد')}
 const modeCard=()=>'<div class="c"><b>نوع کار</b><div class="m">هر وقت خواستید عوض کنید؛ اطلاعات پاک نمی‌شود.</div><select id="pt">'+PRE.map(p=>'<option value="'+p[0]+'"'+((D.s.type||'gen')==p[0]?' selected':'')+'>'+p[1]+'</option>').join('')+'</select><div class="bar"><button class="btn g2" onclick="applyPre($(\'#pt\').value)">اعمال</button></div></div>';
 const THN={auto:['خودکار','#0e6b63'],blue:['آبی','#1e5fb4'],purple:['بنفش','#6a3fb0'],amber:['نارنجی','#b46a0e'],rose:['سرخ','#b4234f'],dark:['تیره','#2a8f84']};
@@ -430,6 +435,87 @@ return '<div class="bar" style="margin-top:0"><button class="btn g2" onclick="T=
 +'<div class="d3" style="grid-template-columns:1fr"><div class="k" style="--k1:#e0603a;--k2:#8f2a10"><small>جمع باقی‌داری</small><b>'+f(t)+' '+cur()+'</b><small>≈ '+f(t/RT())+' $</small></div></div>'
 +(L.map(p=>'<div class="c r" onclick="openParty('+p.id+')"><div><b>'+esc(p.name)+'</b><br><small>'+esc(p.phone||'')+'</small></div><b class="bad">'+f(bal(p))+'</b></div>').join('')||'<div class="c m">باقی‌داری ندارید.</div>')};
 
+/* ===== هماهنگی آنلاین (Supabase) - اول آفلاین، وقتی انترنت بود هماهنگ می‌شود ===== */
+const SB_URL=null,SB_KEY=null; // آدرس و کلید عمومی سرور؛ بعد از ساختن پروژه اینجا گذاشته می‌شود
+let NOSYNC=0,syBusy=0,syT=0,DT=0;
+const COLS=['items','parties','docs','pays','exps','ships','projs','users'];
+const SKIP_S=['bg','logo','lastBk','theme','dn'];
+function sload(){try{return JSON.parse(localStorage.getItem('nn_sync'))||{}}catch(e){return{}}}
+let SY=sload();const ssave=()=>{try{localStorage.setItem('nn_sync',JSON.stringify(SY))}catch(e){}};
+function SB(){if(SB_URL)return{url:SB_URL,key:SB_KEY};try{const c=JSON.parse(localStorage.getItem('nn_sb'));return c&&c.url&&c.key?c:null}catch(e){return null}}
+function h53(t){let a=0xdeadbeef,b=0x41c6ce57;for(let i=0,c;i<t.length;i++){c=t.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}a=Math.imul(a^(a>>>16),2246822507)^Math.imul(b^(b>>>13),3266489909);b=Math.imul(b^(b>>>16),2246822507)^Math.imul(a^(a>>>13),3266489909);return(4294967296*(2097151&b)+(a>>>0)).toString(36)}
+function sSet(){const o={};Object.keys(D.s).forEach(k=>{if(!SKIP_S.includes(k))o[k]=D.s[k]});return o}
+function nextNo(p){if(D.s.dn==null)D.s.dn=Math.max(0,...D.docs.map(d=>+String(d.no).replace(/\D/g,'').slice(-9)||0));D.s.dn++;return p+(SY.tok?devId().slice(0,2)+'-':'')+D.s.dn}
+function devTap(){DT++;if(DT>=7){DT=0;try{localStorage.setItem('nn_devmode','1')}catch(e){}toast('حالت سازنده روشن شد');render()}}
+/* --- ارتباط با سرور --- */
+async function syRefresh(){const c=SB();const r=await fetch(c.url+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:c.key,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:SY.ref})});const j=await r.json();
+if(!r.ok||!j.access_token){SY.tok='';SY.err='دوباره وارد شوید';ssave();throw new Error('نشست تمام شده؛ دوباره وارد شوید')}SY.tok=j.access_token;SY.ref=j.refresh_token;SY.exp=Date.now()+(j.expires_in||3600)*1000;ssave()}
+async function sbReq(m,p,body,hd,retry){const c=SB();if(!c)throw new Error('سرور تنظیم نشده');if(SY.exp&&SY.exp-60000<Date.now())await syRefresh();
+const r=await fetch(c.url+p,{method:m,headers:Object.assign({apikey:c.key,Authorization:'Bearer '+SY.tok,'Content-Type':'application/json'},hd||{}),body:body?JSON.stringify(body):undefined});
+if(r.status==401&&!retry){await syRefresh();return sbReq(m,p,body,hd,1)}
+if(!r.ok)throw new Error('خطای سرور '+r.status);const t=await r.text();return t?JSON.parse(t):null}
+async function syLogin(user,pass,signup){const c=SB(),nm=user.toLowerCase().replace(/[^a-z0-9._-]/g,'');
+const r=await fetch(c.url+(signup?'/auth/v1/signup':'/auth/v1/token?grant_type=password'),{method:'POST',headers:{apikey:c.key,'Content-Type':'application/json'},body:JSON.stringify({email:nm+'@nnhesab.app',password:pass})});
+const j=await r.json().catch(()=>({}));if(!r.ok||!j.access_token)throw new Error(j.msg||j.error_description||j.message||(signup?'ساختن حساب نشد':'نام کاربری یا رمز درست نیست'));
+SY={tok:j.access_token,ref:j.refresh_token,exp:Date.now()+(j.expires_in||3600)*1000,uid:j.user.id,name:nm,cur:'',sh:{}};ssave()}
+/* --- پیدا کردن تغییرها --- */
+function syCollect(){const out=[],now=Date.now();SY.sh=SY.sh||{};
+COLS.forEach(c=>{const a=D[c]||[],sh=SY.sh[c]=SY.sh[c]||{},seen={};
+a.forEach(r=>{const rest=Object.assign({},r);delete rest._u;const h=h53(JSON.stringify(rest));seen[r.id]=1;if(sh[r.id]!==h){r._u=now;out.push({coll:c,rid:r.id,data:rest,u:now,del:false,h})}});
+Object.keys(sh).forEach(k=>{if(!seen[k])out.push({coll:c,rid:+k,data:null,u:now,del:true,h:null})})});
+const st=sSet(),hs=h53(JSON.stringify(st));SY.sh.s=SY.sh.s||{};if(SY.sh.s[1]!==hs)out.push({coll:'s',rid:1,data:st,u:now,del:false,h:hs});return out}
+async function syPush(rows){for(let i=0;i<rows.length;i+=200){const part=rows.slice(i,i+200);
+await sbReq('POST','/rest/v1/records',part.map(r=>({uid:SY.uid,coll:r.coll,rid:r.rid,data:r.data,u:r.u,del:r.del})),{Prefer:'resolution=merge-duplicates,return=minimal'});
+part.forEach(r=>{const sh=SY.sh[r.coll]=SY.sh[r.coll]||{};if(r.del)delete sh[r.rid];else sh[r.rid]=r.h});ssave()}}
+function syApply(r){if(r.coll=='s'){if(r.data){const keep={};SKIP_S.forEach(k=>{if(D.s[k]!==undefined)keep[k]=D.s[k]});D.s=Object.assign({},r.data,keep);SY.sh.s=SY.sh.s||{};SY.sh.s[1]=h53(JSON.stringify(sSet()))}return}
+if(!COLS.includes(r.coll))return;const a=D[r.coll]=D[r.coll]||[],i=a.findIndex(x=>x.id==r.rid),sh=SY.sh[r.coll]=SY.sh[r.coll]||{};
+if(i>=0&&(a[i]._u||0)>=r.u)return;
+if(r.del){if(i>=0)a.splice(i,1);delete sh[r.rid];return}
+const rec=Object.assign({},r.data,{_u:r.u});if(i>=0)a[i]=rec;else a.push(rec);sh[r.rid]=h53(JSON.stringify(r.data))}
+async function syPull(){let n=0;for(;;){const q='/rest/v1/records?select=coll,rid,data,u,del,sv&uid=eq.'+SY.uid+(SY.cur?'&sv=gt.'+encodeURIComponent(SY.cur):'')+'&order=sv.asc&limit=500';
+const rows=await sbReq('GET',q);if(!rows||!rows.length)break;rows.forEach(r=>{syApply(r);n++});SY.cur=rows[rows.length-1].sv;ssave();if(rows.length<500)break}return n}
+async function syncNow(manual){if(syBusy||!SY.tok||!SB())return;if(LIC.mode=='locked')return;
+if(typeof navigator!='undefined'&&navigator.onLine===false){if(manual)toast('انترنت نیست؛ هر وقت آمد هماهنگ می‌شود');return}
+syBusy=1;try{const rows=syCollect();if(rows.length)await syPush(rows);const n=await syPull();SY.last=Date.now();SY.err='';ssave();
+if(n||rows.length){NOSYNC=1;save();NOSYNC=0}if(n)render(1);if(manual){toast('هماهنگ شد');render(1)}}
+catch(e){SY.err=String(e.message||e);ssave();if(manual)toast('هماهنگی نشد: '+SY.err)}finally{syBusy=0}}
+function syncSoon(){if(!SY.tok)return;clearTimeout(syT);syT=setTimeout(()=>syncNow(),3000)}
+/* --- ورود و صفحه تنظیمات --- */
+function syLoginBox(){modal('<h3>ورود با حساب آنلاین</h3><div class="m">اطلاعات این دستگاه خالی است؛ با ورود، اطلاعات حساب آنلاین آورده می‌شود.</div><label>نام کاربری<input id="sy_u" autocomplete="off" style="direction:ltr"></label><label>رمز<input id="sy_p" type="password" style="direction:ltr"></label><div class="bar"><button class="btn" onclick="syConnect(0)">ورود</button><button class="btn g2" onclick="closeM()">لغو</button></div>')}
+async function syConnect(signup){const u=($('#sy_u').value||'').trim(),p=$('#sy_p').value||'';
+if(u.replace(/[^a-zA-Z0-9._-]/g,'').length<3)return toast('نام کاربری حداقل ۳ حرف یا عدد انگلیسی باشد');if(p.length<6)return toast('رمز حداقل ۶ حرف باشد');
+try{await syLogin(u,p,signup)}catch(e){return toast(String(e.message))}
+const has=D.items.length+D.parties.length+D.docs.length+D.pays.length+D.exps.length>0;let remote=0;
+try{const r=await sbReq('GET','/rest/v1/records?select=rid&uid=eq.'+SY.uid+'&limit=1');remote=r&&r.length?1:0}catch(e){SY={};ssave();return toast('اتصال به سرور نشد')}
+if(has&&remote){SY={};ssave();return toast('این دستگاه اطلاعات دارد و حساب آنلاین هم اطلاعات دارد؛ قاطی نمی‌شوند. اول کاپی بگیرید و اطلاعات این دستگاه را پاک کنید.')}
+if(!has&&remote){D.users=[];U=null;try{sessionStorage.removeItem('hu')}catch(e){}}
+closeM();await syncNow(1);if(!remote&&!signup)toast('این حساب اطلاعاتی ندارد');boot()}
+function syOut(){if(!confirm('از حساب آنلاین خارج شوید؟ اطلاعات همین دستگاه می‌ماند.'))return;SY={};ssave();render()}
+function syCard(){const c=SB();
+if(!c)return localStorage.getItem('nn_devmode')?'<div class="c"><b>تنظیم سرور (حالت سازنده)</b><label>آدرس سرور<input id="sb_u" style="direction:ltr"></label><label>کلید عمومی (anon)<input id="sb_k" style="direction:ltr"></label><div class="bar"><button class="btn g2" onclick="try{localStorage.setItem(\'nn_sb\',JSON.stringify({url:$(\'#sb_u\').value.trim().replace(/\\/+$/,\'\'),key:$(\'#sb_k\').value.trim()}))}catch(e){}render()">ذخیره</button></div></div>':'';
+if(!SY.tok)return '<div class="c"><b>هماهنگی آنلاین</b><div class="m">با یک نام کاربری و رمز، اطلاعات در موبایل و کمپیوتر یکی می‌شود. بدون انترنت هم کار می‌کند و بعداً خودش هماهنگ می‌شود.</div><label>نام کاربری (انگلیسی)<input id="sy_u" autocomplete="off" style="direction:ltr"></label><label>رمز (حداقل ۶ حرف)<input id="sy_p" type="password" style="direction:ltr"></label><div class="bar"><button class="btn" onclick="syConnect(1)">ساختن حساب آنلاین</button><button class="btn g2" onclick="syConnect(0)">ورود</button></div></div>';
+const t=SY.last?new Date(SY.last):null;return '<div class="c"><b>هماهنگی آنلاین</b><div class="m">حساب: <span style="direction:ltr;display:inline-block">'+esc(SY.name)+'</span><br>آخرین هماهنگی: '+(t?fd(t.toISOString().slice(0,10))+' '+t.toTimeString().slice(0,5):'هنوز نشده')+(SY.err?'<br><span class="bad">'+esc(SY.err)+'</span>':'')+'</div><div class="bar"><button class="btn" onclick="syncNow(1)">هماهنگ کن</button><button class="btn g2" onclick="syOut()">خروج از حساب آنلاین</button></div></div>'}
+
+/* ===== امنیت اطلاعات: کاپی‌های داخل دستگاه، ارسال کاپی، هشدار ===== */
+let SAVEFAIL=0;
+function saveFail(){if(SAVEFAIL)return;SAVEFAIL=1;try{modal('<h3 class="bad">اخطار: اطلاعات ذخیره نشد</h3><p class="m">حافظه مرورگر پر یا بسته است. همین حالا کاپی بگیرید و برای خودتان بفرستید، بعد با پشتیبانی تماس بگیرید.</p><div class="bar"><button class="btn" onclick="shareBackup()">ارسال کاپی</button><button class="btn g2" onclick="backup()">ذخیره در گوشی</button></div><div class="bar"><a class="btn g2" href="tel:0728166262" style="text-decoration:none;text-align:center;direction:ltr">0728166262</a><a class="btn g2" href="tel:0788809892" style="text-decoration:none;text-align:center;direction:ltr">0788809892</a></div>');$('#m').onclick=null}catch(e){}}
+async function shareBackup(){D.s.lastBk=today();save();const j=JSON.stringify(D),nm='nn-hesab-backup-'+today()+'.json';
+try{const fl=new File([j],nm,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[fl]})){await navigator.share({files:[fl],title:'کاپی NN حساب'});toast('ارسال شد');render(1);return}}catch(e){if(e&&e.name=='AbortError')return}
+backup();render(1)}
+function snapNow(label){try{if(!(D.items.length||D.parties.length||D.docs.length||D.users.length))return;IDB.putK('S:'+new Date().toISOString()+'|'+(label||''),JSON.stringify(D));setTimeout(snapPrune,500)}catch(e){}}
+function snapDaily(){const t='S:'+today();IDB.keys(ks=>{if(ks.some(k=>String(k).startsWith(t)&&String(k).endsWith('|روزانه')))return;snapNow('روزانه')})}
+function snapPrune(){IDB.keys(ks=>{const S=ks.filter(k=>String(k).startsWith('S:')).sort().reverse();let d=0,b=0;S.forEach(k=>{if(String(k).endsWith('|روزانه')){if(++d>7)IDB.delK(k)}else if(++b>8)IDB.delK(k)})})}
+function snapRender(){const el=$('#snl');if(!el)return;
+IDB.keys(ks=>{const S=ks.filter(k=>String(k).startsWith('S:')).sort().reverse().slice(0,12);
+el.innerHTML='<b>کاپی‌های داخل دستگاه</b><div class="m">برنامه خودش هر روز یک کاپی نگه می‌دارد (۷ روز اخیر) و پیش از کارهای خطرناک هم (برگرداندن کاپی، حذف مشتری با حساب، پاک کردن همه چیز). اگر اشتباه کردید، از اینجا برگردانید.</div>'
++(S.map(k=>{const p=String(k).slice(2).split('|'),d=new Date(p[0]);return '<div class="r" style="padding:6px 0;border-bottom:1px solid var(--ln)"><span>'+fd(p[0].slice(0,10))+' '+d.toTimeString().slice(0,5)+'<br><small>'+esc(p[1]||'')+'</small></span><button class="btn g2" style="padding:6px 10px" onclick="snapRestore(\''+encodeURIComponent(k)+'\')">برگرداندن</button></div>'}).join('')||'<div class="m">هنوز کاپی داخلی نیست؛ بعد از چند ثانیه کار با برنامه ساخته می‌شود.</div>')+'<div id="stt" class="m" style="margin-top:8px"></div>';
+try{navigator.storage.persisted().then(p=>navigator.storage.estimate().then(e=>{const t=$('#stt');if(t)t.innerHTML='حافظه دائمی: <b>'+(p?'بله':'نه')+'</b>'+(p?'':' (برنامه را به صفحه اصلی گوشی اضافه کنید تا کمتر پاک شود)')+' · فضای استفاده‌شده: '+f((e.usage||0)/1048576)+' MB'}))}catch(e){}})}
+function snapRestore(k){k=decodeURIComponent(k);if(!confirm('اطلاعات فعلی با این کاپی عوض شود؟ از اطلاعات فعلی هم یک کاپی گرفته می‌شود.'+(SY.tok?' هماهنگی آنلاین این تغییر را به دستگاه‌های دیگر هم می‌رساند.':'')))return;
+IDB.getK(k,j=>{try{const x=JSON.parse(j);if(!x||!x.items)throw 0;snapNow('قبل از برگرداندن کاپی داخلی');D=x;D.ships=D.ships||[];D.projs=D.projs||[];D.users=D.users||[];U=null;sset('hu','');save();boot();toast('برگردانده شد')}catch(e){toast('کاپی خوانده نشد')}})}
+const safeCard=()=>{const l=safeLvl(),c=l==0?'#19a974':l==1?'#d89a1b':'var(--bad)';
+return '<div class="c" style="border-right:6px solid '+c+'"><b>امنیت اطلاعات</b><div class="m">'+(l==0?'اطلاعات شما بیرون از دستگاه هم نگه داشته شده است.':l==1?'مدتی است کاپی بیرون از دستگاه نگرفته‌اید.':'کاپی بیرون از دستگاه ندارید؛ اگر موبایل خراب یا پاک شود، اطلاعات می‌پرد.')+'<br>آخرین کاپی: '+(D.s.lastBk?fd(D.s.lastBk):'—')+(SY.tok?' · آخرین هماهنگی آنلاین: '+(SY.last?fd(new Date(SY.last).toISOString().slice(0,10)):'—'):'')+'</div><div class="bar"><button class="btn" onclick="shareBackup()">ارسال کاپی</button><button class="btn g2" onclick="backup();render()">ذخیره در گوشی</button></div></div><div class="c" id="snl"><b>کاپی‌های داخل دستگاه</b><div class="m">در حال خواندن...</div></div>'};
+const _vsafe=V.set;V.set=()=>{setTimeout(snapRender,0);return safeCard()+_vsafe()};
+
 /* ===== آوردن اطلاعات از برنامه دیگر (فروشگاه) ===== */
 function impCard(){return '<div class="c"><b>آوردن اطلاعات از برنامه دیگر</b><div class="m">فایل کاپی (.json) برنامه فروشگاه را انتخاب کنید. اطلاعات به اطلاعات فعلی <b>اضافه</b> می‌شود و چیزی پاک نمی‌شود.</div><div class="bar"><button class="btn g2" onclick="$(\'#if\').click()">انتخاب فایل کاپی</button></div><input type="file" id="if" accept=".json" style="display:none" onchange="impRead(this.files[0]);this.value=\'\'"></div>'}
 function impRead(file){if(!file)return;const r=new FileReader();r.onload=()=>{let x;try{x=JSON.parse(r.result)}catch(e){return toast('فایل درست نیست')}
@@ -438,7 +524,7 @@ if((D.imps||[]).includes(x.exported_at))return toast('این کاپی قبلاً
 const oldN=sum(x.sales,s=>s.items.filter(i=>i.product_id==null).length);
 modal('<h3>آوردن اطلاعات</h3><div class="c"><div class="r"><span>اجناس</span><b>'+x.products.length+'</b></div><div class="r"><span>مشتری‌ها</span><b>'+x.customers.length+'</b></div><div class="r"><span>فاکتورهای فروش</span><b>'+x.sales.length+'</b></div><div class="r"><span>پرداخت‌ها</span><b>'+x.payments.length+'</b></div><div class="r"><span>تمویل‌کننده‌ها</span><b>'+(x.vendors||[]).length+'</b></div></div><div class="m">ردیف‌های «ثبت کتابچه» ('+oldN+' مورد) به‌صورت باقی‌مانده قبلی مشتری‌ها می‌آید. پیش از آوردن، یک کاپی از اطلاعات فعلی دانلود می‌شود.</div><div class="bar"><button class="btn" id="iok">آوردن</button><button class="btn g2" onclick="closeM()">لغو</button></div>');
 $('#iok').onclick=()=>impRun(x)};r.readAsText(file)}
-function impRun(x){try{backup()}catch(e){}
+function impRun(x){snapNow('قبل از آوردن اطلاعات از برنامه دیگر');try{backup()}catch(e){}
 const dt=v=>String(v||'').slice(0,10),was=D.items.map(i=>i.name),used={},pc={items:0,cust:0,docs:0,pays:0,vend:0,old:0},im={},pm={},sold={},oldNote={};
 D.items.forEach(i=>{if(i.barcode)used[i.barcode]=1});
 x.sales.forEach(s=>s.items.forEach(i=>{if(i.product_id!=null)sold[i.product_id]=(sold[i.product_id]||0)+(+i.qty||0)}));
@@ -478,9 +564,10 @@ $('#nv').innerHTML=tb.map(t=>'<button class="'+((T==t[0]||(t[0]=='parties'&&(T==
 const a=keep&&document.activeElement&&document.activeElement.tagName=='INPUT'?document.activeElement.selectionStart:null;
 $('#app').innerHTML=V[T]();if(a!==null){const e=$('#app input');if(e){e.focus();e.setSelectionRange(a,a)}}else if(!keep)scrollTo(0,0)}
 load();IDB.open(()=>{const go=()=>{licInit(()=>boot());try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}};
-if(D.users.length||!IDB.db)return go();
-IDB.get(r=>{try{const x=JSON.parse(r);if(x&&x.users&&x.users.length){D=x;D.ships=D.ships||[];D.projs=D.projs||[];save();setTimeout(()=>toast('اطلاعات از نسخه پشتیبان مرورگر برگردانده شد'),400)}}catch(e){}go()})});
+if(!IDB.db)return go();
+IDB.get(r=>{try{const x=JSON.parse(r);if(x&&x.users&&x.users.length&&(!D.users.length||(x.at||0)>(D.at||0))){D=x;D.ships=D.ships||[];D.projs=D.projs||[];D.users=D.users||[];NOSYNC=1;save();NOSYNC=0;setTimeout(()=>toast('اطلاعات از نسخه پشتیبان مرورگر برگردانده شد'),400)}}catch(e){}go();setTimeout(snapDaily,4000)});});
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+try{window.addEventListener('online',()=>syncNow());document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncNow()});setTimeout(()=>syncNow(),2500);setInterval(()=>syncNow(),300000)}catch(e){}
 </script>
 </body>
 </html>
