@@ -68,6 +68,15 @@ body.hasbg{background-size:cover;background-attachment:fixed;background-position
 #pr .tt{width:55%;margin-right:auto}}
 .at{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}.at th,.at td{border-bottom:1px solid var(--ln);padding:5px 4px;text-align:right;vertical-align:top}.at th{color:var(--mut);font-weight:600}.at td.n,.at th.n{text-align:left;direction:ltr;white-space:nowrap}.at tr.tot td{font-weight:800;border-top:2px solid var(--ink)}.at tr[data-ck]{cursor:pointer}.at tr[data-ck] td:first-child::after{content:' ›';color:var(--ac);font-weight:800}
 .atabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.atabs button{flex:1;min-width:64px;padding:8px 4px;border:2px solid var(--ac);border-radius:9px;background:var(--card);color:var(--ac);font:inherit;font-weight:700;font-size:13px}.atabs button.on{background:var(--ac);color:var(--acf)}
+details.gd{border:1px solid var(--ln);border-radius:10px;margin-bottom:8px;background:var(--card)}
+details.gd>summary{list-style:none;cursor:pointer;padding:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+details.gd>summary::-webkit-details-marker{display:none}
+details.gd>summary::after{content:'+';color:var(--ac);font-size:20px;font-weight:800}
+details.gd[open]>summary::after{content:'−'}
+details.gd .gdb{padding:0 12px 14px;color:var(--ink);line-height:1.95}
+.gdb ol,.gdb ul{margin:6px 0;padding-right:20px}.gdb li{margin:5px 0}.gdb p{margin:6px 0}
+.qs{counter-reset:qs}.qs>div{counter-increment:qs;display:flex;gap:10px;padding:6px 0}
+.qs>div::before{content:counter(qs);flex:none;width:24px;height:24px;border-radius:99px;background:var(--ac);color:var(--acf);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
 </style>
 </head>
 <body>
@@ -83,7 +92,7 @@ let D,T='home',Q='',PF='c',E,U=null;
 function load(){try{D=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 D=D||{s:{name:'نام شرکت',cur:'؋',lc:'مشتری',li:'جنس'},items:[],parties:[],docs:[],pays:[],exps:[],seq:1};
 D.ships=D.ships||[];D.projs=D.projs||[];D.users=D.users||[]}
-const APPV='3.6';
+const APPV='3.7';
 const IDB={db:null,open(cb){try{const r=indexedDB.open('nnhesab',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>{IDB.db=r.result;cb()};r.onerror=()=>cb();r.onblocked=()=>cb()}catch(e){cb()}},
 put(v){try{IDB.db&&IDB.db.transaction('k','readwrite').objectStore('k').put(v,'D')}catch(e){}},
 clear(){IDB.delK('D')},
@@ -139,7 +148,7 @@ for(i=0;i<8;i++)for(j=3;j+1;j--){var b=(h[i]>>(j*8))&255;r+=(b<16?'0':'')+b.toSt
 const hp=(p,s)=>{let h=s+p;for(let i=0;i<300;i++)h=sha(s+h);return h};
 const ROLE={admin:'مدیر',acct:'حسابدار',seller:'فروشنده'};
 const isA=()=>U&&U.role=='admin',isS=()=>U&&U.role=='seller';
-const tabsFor=()=>TABS.filter(t=>(t[0]!='co'||D.s.imp||D.s.con)&&(isA()||(U.role=='acct'?t[0]!='set':['inv','items','parties'].includes(t[0]))));
+const tabsFor=()=>TABS.filter(t=>t[0]=='help'||((t[0]!='co'||D.s.imp||D.s.con)&&(isA()||(U.role=='acct'?t[0]!='set':['inv','items','parties'].includes(t[0])))));
 const rnd=n=>{let r='',c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(let i=0;i<n;i++)r+=c[Math.floor(Math.random()*c.length)];return r};
 function migD(){D.jr=D.jr||[];if((D.v||0)>=3)return;
 D.docs.forEach(d=>{if(d.cur=='USD'&&d.rate){d.total=Math.round(d.total/d.rate*100)/100;d.paid=Math.round((d.paid||0)/d.rate*100)/100}});
@@ -189,7 +198,7 @@ const rc=sumPos(D.parties.filter(p=>p.type=='c')),py=sumPos(D.parties.filter(p=>
 const low=D.items.filter(i=>stock(i)<=i.min);
 const k=(c1,c2,t,a,u)=>'<div class="k" style="--k1:'+c1+';--k2:'+c2+'"><small>'+t+'</small><b>'+f(a)+' '+cur()+'</b><small>'+(u?f(u)+' $':'&nbsp;')+'</small></div>';
 return licNote()+bkNote()+'<div class="d3">'+k('#19b87c','#0a6b4a','فروش امروز',ts,tsU)+k('#f4b627','#b4700a','فایده امروز (تخمینی)',pr,0)+k('#3f93ec','#1b4c9a','موجودی صندوق',cash(),cashU())+k('#a96cf2','#5a2da6','طلب از '+esc(D.s.lc)+'‌ها',rc.a,rc.u)+'</div>'
-+'<div class="c r"><span>قرض به تمویل‌کننده‌ها</span><b>'+mny(py.a,py.u)+'</b></div>'+chart7()+(isA()||U.role=='acc'?'<div class="bar"><button class="btn g2" onclick="T=\'rep\';render()">گزارش ماهانه</button><button class="btn g2" onclick="T=\'acc\';render()">حسابداری</button></div>':'')
++'<div class="c r"><span>قرض به تمویل‌کننده‌ها</span><b>'+mny(py.a,py.u)+'</b></div>'+chart7()+(isA()||U.role=='acct'?'<div class="bar"><button class="btn g2" onclick="T=\'rep\';render()">گزارش ماهانه</button><button class="btn g2" onclick="T=\'acc\';render()">حسابداری</button></div>':'')
 +'<div class="bar"><button class="btn" onclick="quick()">فروش سریع</button></div><div class="bar"><button class="btn g2" onclick="newDoc(\'sale\')">فروش با فاکتور</button><button class="btn g2" onclick="newDoc(\'purchase\')">خرید جدید</button></div>'
 +'<div class="c"><b>کمبود موجودی ('+low.length+')</b>'+(low.length?low.map(i=>'<div class="r m"><span>'+esc(i.name)+'</span><span class="bad">'+f(stock(i))+'</span></div>').join(''):'<div class="m">همه چیز کافی است.</div>')+'</div>'+foot()};
 
@@ -374,7 +383,7 @@ const sdt=d=>{const x=fd(d);const k=x.indexOf('/');return k>0?x.slice(k+1):x};
 function chart7(){const a=[];for(let i=6;i>=0;i--){const d=new Date(Date.now()-i*864e5).toISOString().slice(0,10);a.push([d,sum(D.docs.filter(x=>(x.type=='sale'||x.type=='return')&&x.date==d),x=>x.total*dr(x)*(x.type=='return'?-1:1))])}const mx=Math.max(1,...a.map(x=>x[1]));
 return '<div class="c"><b>فروش ۷ روز اخیر</b><div class="ch">'+a.map(x=>'<div class="cb"><small>'+(x[1]?f(x[1]):'')+'</small><i style="height:'+Math.max(5,Math.round(x[1]/mx*100))+'px"></i><small>'+sdt(x[0])+'</small></div>').join('')+'</div><div class="m">بر حسب افغانی؛ فروش دالری با نرخ همان روز.</div></div>'}
 function safeLvl(){if(!(D.items.length||D.docs.length||D.parties.length))return 0;const n=Date.now(),bk=D.s.lastBk?(n-new Date(D.s.lastBk))/864e5:99,sy=(SY.tok&&SY.last&&!SY.err)?(n-SY.last)/864e5:99;if(sy<=2||bk<=3)return 0;return bk<=14?1:2}
-function bkNote(){if(!(isA()||(U&&U.role=='acc')))return '';const l=safeLvl();if(!l)return '';
+function bkNote(){if(!(isA()||(U&&U.role=='acct')))return '';const l=safeLvl();if(!l)return '';
 return '<div class="c" style="border:2px solid '+(l==2?'var(--bad)':'#d89a1b')+'"><b>'+(l==2?'اطلاعات شما در خطر است':'وقت کاپی گرفتن است')+'</b><div class="m">'+(D.s.lastBk?'آخرین کاپی: '+fd(D.s.lastBk):'تا حالا کاپی بیرون از دستگاه نگرفته‌اید')+'. کاپی را به تلگرام، واتساپ یا ایمیل خودتان بفرستید تا اگر موبایل خراب یا پاک شد، اطلاعات نپرد.</div><div class="bar"><button class="btn" onclick="shareBackup()">ارسال کاپی</button><button class="btn g2" onclick="backup();render()">ذخیره در گوشی</button></div></div>'}
 function applyPre(t){if(!confirm('نوع کار عوض شود؟ اطلاعات شما پاک نمی‌شود.'))return;const m={shop:['مشتری','جنس',0,0],pharm:['مریض','دوا',0,0],imp:['مشتری','جنس',1,0],con:['کارفرما','مواد',0,1],gen:['مشتری','جنس',0,0]}[t];D.s.type=t;D.s.lc=m[0];D.s.li=m[1];D.s.imp=m[2];D.s.con=m[3];save();render();toast('نوع کار عوض شد')}
 const modeCard=()=>'<div class="c"><b>نوع کار</b><div class="m">هر وقت خواستید عوض کنید؛ اطلاعات پاک نمی‌شود.</div><select id="pt">'+PRE.map(p=>'<option value="'+p[0]+'"'+((D.s.type||'gen')==p[0]?' selected':'')+'>'+p[1]+'</option>').join('')+'</select><div class="bar"><button class="btn g2" onclick="applyPre($(\'#pt\').value)">اعمال</button></div></div>';
@@ -699,6 +708,83 @@ const pvLedger=()=>{const p=D.parties.find(x=>x.id==PV);if(!p)return '';return [
 return '<div class="c"><b>صورت‌حساب بدهکار / بستانکار ('+(c=='USD'?'دالر':'افغانی')+')</b><div class="m">بدهکار = '+(p.type=='s'?'پرداخت به او':'فروش به او')+' · بستانکار = '+(p.type=='s'?'خرید از او':'دریافت از او')+(rows.length>25?' · ۲۵ ردیف آخر':'')+'</div>'+tbs(['تاریخ','شرح','بدهکار','بستانکار','مانده'],rows.slice(-25).map(x=>[fdd(x.date),esc(x.ref+' '+x.desc),x.dr?f(x.dr):'',x.cr?f(x.cr):'',sd(x.bal)]),2)+'</div>'}).join('')};
 const _pv=V.pv;V.pv=()=>_pv()+pvLedger();
 
+/* ===== راهنمای برنامه ===== */
+let HQ='';
+function guideData(){const lc=esc(D.s.lc||'مشتری'),li=esc(D.s.li||'جنس');return [
+{id:'start',t:'شروع کار (بار اول برنامه)',r:['admin'],b:'<p>بار اول که برنامه باز می‌شود، صفحه «تنظیم اولیه» می‌آید.</p><ol>'
++'<li>نام دوکان یا شرکت، نوع کار، نام کامل مدیر، نام کاربری و رمز را بنویسید.</li>'
++'<li>بعد از ساختن حساب، یک <b>کد بازیابی</b> نشان داده می‌شود؛ همان لحظه یادداشت کنید. دوباره نشان داده نمی‌شود و اگر رمز مدیر فراموش شود، فقط با همین کد برمی‌گردد.</li>'
++'<li>بعد یک <b>کد پشتیبان</b> هم می‌آید؛ مخصوص فروشنده برنامه است، نه شما.</li>'
++'<li>اگر از قبل کاپی اطلاعات دارید (مثلاً همین دستگاه را تازه کرده‌اید)، به‌جای ساختن حساب تازه، «برگرداندن از کاپی» را بزنید تا کاربرها و رمزهای قبلی برگردد.</li></ol>'},
+{id:'login',t:'ورود، خروج و فراموشی رمز',r:['all'],b:'<p>نام کاربری و رمز خودتان را بنویسید و «ورود» را بزنید. برای خروج، نام خودتان را بالای صفحه بزنید.</p>'
++'<p>اگر <b>مدیر</b> رمزش را فراموش کند: در صفحه ورود «رمز مدیر را فراموش کرده‌ام» را بزند، نام کاربری، کد بازیابی (یا کد پشتیبان) و رمز تازه را بنویسد.</p>'
++'<p>اگر رمز <b>کاربر دیگر</b> (حسابدار یا فروشنده) فراموش شود، فقط مدیر از «تنظیمات ← کاربران» می‌تواند رمز تازه برایش بگذارد.</p>'
++'<p>بعد از ۵ بار رمز غلط، ورود چند ثانیه بسته می‌شود؛ هر بار باز هم غلط بزنید، مدت بسته ماندن بیشتر می‌شود.</p>'},
+{id:'roles',t:'سه نقش: مدیر، حسابدار، فروشنده',r:['all'],b:'<p>هر کاربر یکی از این سه نقش را دارد؛ هر نقش فقط همان بخش‌هایی را می‌بیند که به آن نیاز دارد:</p>'
++'<p><b>مدیر</b>: همه چیز، از جمله تنظیمات، کاربران، لوگو، فعال‌سازی و حسابداری.</p>'
++'<p><b>حسابدار</b>: فروش، خرید، '+li+'ها، '+lc+'ها، صندوق، گزارش و حسابداری؛ فقط به «تنظیمات» و مدیریت کاربران دسترسی ندارد.</p>'
++'<p><b>فروشنده</b>: فقط فاکتور، '+li+'ها و '+lc+'ها. قیمت خرید '+li+' را نمی‌بیند، نمی‌تواند '+li+' تازه بسازد یا حذف کند، و خرید از تمویل‌کننده برایش بسته است.</p>'
++'<p>اگر دکمه‌ای را نمی‌بینید، یعنی نقش شما به آن دسترسی ندارد؛ از مدیر بپرسید.</p>'},
+{id:'menu',t:'آشنایی با منوی پایین صفحه',r:['all'],b:'<p><b>خانه</b>: خلاصه امروز، هشدار کمبود '+li+' و میانبر فروش سریع.</p><p><b>فاکتور</b>: لیست فروش، خرید، مرجوعی و سمپل.</p>'
++'<p><b>'+li+'ها</b>: لیست و جستجوی '+li+'ها.</p><p><b>'+lc+'ها</b>: لیست '+lc+'ها و تمویل‌کننده‌ها.</p><p><b>صندوق</b>: موجودی نقد و مصارف (فقط مدیر و حسابدار).</p>'
++'<p><b>شرکت</b>: واردات/صادرات و پروژه ساختمانی، اگر در تنظیمات فعال باشد.</p><p><b>تنظیمات</b>: فقط مدیر.</p><p><b>راهنما</b>: همین صفحه؛ همه می‌بینند.</p>'},
+{id:'quick',t:'فروش سریع',r:['all'],b:'<p>برای فروش نقدی تند، در صفحه خانه یا فاکتور «فروش سریع» را بزنید.</p><ol>'
++'<li>نام یا بارکد '+li+' را بنویسید؛ از لیست انتخاب کنید یا Enter بزنید.</li>'
++'<li>با + و − تعداد را کم و زیاد کنید.</li>'
++'<li>«ذخیره (نقدی)» را بزنید. این روش نام مشتری و تخفیف نمی‌گیرد؛ برای آن «فروش با فاکتور» را استفاده کنید.</li></ol>'},
+{id:'saleinv',t:'فروش با فاکتور',r:['all'],b:'<ol><li>از فاکتور، «فروش با فاکتور» را بزنید.</li>'
++'<li>پول فاکتور را انتخاب کنید: افغانی یا دالر. اگر دالر شد، نرخ روز را بنویسید.</li>'
++'<li>'+lc+' را انتخاب کنید یا «نقدی» بگذارید.</li>'
++'<li>'+li+' را از لیست انتخاب یا بارکد را اسکن/بنویسید و Enter بزنید. اگر '+li+' مورد نظر نبود، همان‌جا «+ '+li+' جدید» را بزنید.</li>'
++'<li>تعداد و قیمت هر ردیف را لازم شد عوض کنید؛ تخفیف هم می‌شود نوشت.</li>'
++'<li>مبلغ پرداخت‌شده را بنویسید؛ خالی بگذارید یعنی اگر '+lc+' انتخاب شده، هیچ پولی نگرفته‌اید (قرض می‌شود)، و اگر نقدی است، کامل پرداخت شده حساب می‌شود.</li>'
++'<li>«ذخیره» را بزنید. از همان فاکتور می‌شود چاپ A4 هم گرفت.</li></ol>'
++'<p>برای ویرایش یا حذف یک فاکتور، روی آن در لیست بزنید.</p>'},
+{id:'buy',t:'خرید از تمویل‌کننده',r:['admin','acct'],b:'<p>مثل فروش است، فقط از «خرید جدید» شروع می‌شود و تمویل‌کننده به‌جای '+lc+' انتخاب می‌شود. با ذخیره، موجودی '+li+' زیاد و بدهی شما به تمویل‌کننده ثبت می‌شود.</p>'},
+{id:'ret',t:'مرجوعی و سمپل',r:['all'],b:'<p><b>مرجوعی</b>: وقتی '+lc+' '+li+'ی را پس می‌آورد. از «مرجوعی» شروع کنید؛ می‌توانید فاکتور فروش اصلی را هم انتخاب کنید تا قیمت‌ها خودکار بیاید. '+li+' به گدام برمی‌گردد و از بدهی '+lc+' کم می‌شود.</p>'
++'<p><b>سمپل</b>: '+li+'ی که رایگان به '+lc+' می‌دهید، مثلاً برای امتحان. از موجودی کم می‌شود ولی به بدهی '+lc+' اضافه نمی‌شود.</p>'},
+{id:'items',t:'مدیریت '+li+'\u200cها',r:['all'],b:'<p>در صفحه «'+li+'ها» می‌شود جستجو، چاپ و (برای مدیر/حسابدار) اضافه یا ویرایش کرد. هر '+li+' این مشخصات را دارد: نام، دسته‌بندی، واحد (دانه، کارتن، کیلو…)، بارکد، قیمت خرید، قیمت فروش، موجودی اولیه، حد کمبود و توضیح.</p>'
++'<p>وقتی موجودی به حد کمبود برسد، در صفحه خانه هشدار داده می‌شود.</p>'},
+{id:'parties',t:lc+'\u200cها و تمویل‌کننده‌ها',r:['all'],b:'<p>از «'+lc+'ها» شخص تازه بسازید: نام، تلفن، آدرس، یادداشت و حساب قبلی (اگر از قبل بدهکار یا بستانکار بوده).</p>'
++'<p>با زدن روی نام هر شخص، صفحه‌اش باز می‌شود: باقی‌مانده (افغانی و دالر جدا)، دکمه دریافت یا پرداخت پول، فروش/خرید جدید، ویرایش، چاپ صورت‌حساب، و پایین صفحه <b>دفتر حساب</b> با ستون بدهکار/بستانکار/مانده. روی هر ردیف آن بزنید تا همان فاکتور یا رسید باز و قابل ویرایش شود.</p>'},
+{id:'pay',t:'دریافت و پرداخت پول',r:['all'],b:'<p>در صفحه هر شخص، «دریافت پول» (برای '+lc+') یا «پرداخت پول» (برای تمویل‌کننده، فقط مدیر/حسابدار) را بزنید. پول و مبلغ را بنویسید؛ هر رسید یک شماره می‌گیرد.</p>'
++'<p>مدیر و حسابدار از «'+lc+'ها ← رسیدها» لیست همه رسیدها را با جستجو می‌بینند و از همان‌جا ویرایش، حذف یا چاپ می‌کنند.</p>'},
+{id:'debts',t:'باقی‌داری‌ها و تسویه‌شده‌ها',r:['all'],b:'<p>از «'+lc+'ها ← باقی‌داری‌ها» لیست بدهکارها به ترتیب بیشترین بدهی دیده می‌شود، با چاپ A4. دکمه «تسویه‌شده‌ها» کسانی را نشان می‌دهد که حسابشان صفر شده است.</p>'},
+{id:'cash',t:'صندوق و مصارف',r:['admin','acct'],b:'<p>در «صندوق» موجودی نقد افغانی و دالر دیده می‌شود. «ثبت مصرف» برای کرایه، معاش، برق و… است؛ هر مصرف هم ویرایش و حذف دارد.</p>'
++'<p>پایین صفحه، <b>دفتر صندوق</b> هر ورود و خروج پول را با مانده بعد از آن نشان می‌دهد؛ روی هر ردیف بزنید تا باز شود.</p>'},
+{id:'co',t:'واردات، صادرات و پروژه ساختمانی',r:['admin','acct'],b:'<p>اگر در تنظیمات فعال باشد، تب «شرکت» می‌آید. برای واردات: محموله بسازید، '+li+'ها و مصارف آن (کرایه، گمرک…) را اضافه کنید؛ با «رسیدن به گدام»، قیمت خرید هر '+li+' با احتساب مصارف حساب و به گدام اضافه می‌شود. صادرات برعکس است: از گدام کم می‌شود و فاکتور فروش می‌سازد.</p>'
++'<p>برای ساختمانی: پروژه بسازید، مصرف مواد و معاش کارگر را ثبت کنید؛ فایده تخمینی پروژه خودکار حساب می‌شود.</p>'},
+{id:'rep',t:'گزارش ماهانه و بازه‌ها',r:['admin','acct'],b:'<p>از صفحه خانه «گزارش ماهانه» را بزنید. بازه را انتخاب کنید: ماه شمسی، امروز، دیروز، ۷ روز، ۳۰ روز یا بازه دلخواه. فروش، خرید، فایده، مصارف، پرفروش‌ترین '+li+'ها و بیشترین بدهکارها نشان داده می‌شود، با چاپ A4.</p>'},
+{id:'acc',t:'حسابداری (دبیت و کردیت)',r:['admin','acct'],b:'<p>هر فروش، خرید، رسید و مصرف خودکار به‌صورت دو ستون <b>بدهکار</b> و <b>بستانکار</b> ثبت می‌شود، درست مثل یک دفترچه حساب قدیمی.</p>'
++'<p>از صندوق یا خانه «حسابداری» را باز کنید: <b>ژورنال</b> (همه سندها)، <b>دفتر کل</b> (هر حساب جدا با مانده)، <b>ترازنامه آزمایشی</b> (باید بدهکار و بستانکار برابر باشد)، <b>سود و زیان</b> و <b>ترازنامه</b>. همه چاپ A4 دارند.</p>'
++'<p>روی هر ردیف این جدول‌ها بزنید تا فاکتور یا رسیدش باز شود.</p>'},
+{id:'print',t:'چاپ A4',r:['all'],b:'<p>تقریباً هر صفحه (فاکتور، صورت‌حساب، لیست‌ها، گزارش‌ها) دکمه «چاپ A4» دارد. روی موبایل، پنجره چاپ یا اشتراک‌گذاری باز می‌شود؛ می‌توانید روی چاپگر وصل‌شده چاپ کنید یا به‌صورت PDF ذخیره کنید.</p>'},
+{id:'excel',t:'خروجی Excel',r:['admin'],b:'<p>از «تنظیمات ← خروجی Excel» می‌شود '+li+'ها، '+lc+'ها و حساب، فاکتورها، رسیدها و مصارف را به فایل CSV گرفت که در Excel یا Google Sheets باز می‌شود.</p>'},
+{id:'users',t:'کاربران و صلاحیت‌ها',r:['admin'],b:'<p>از «تنظیمات ← کاربران» کاربر تازه بسازید و نقشش را انتخاب کنید. برای هر کاربر می‌شود رمز تازه گذاشت یا حذفش کرد (به‌جز آخرین مدیر). «کد بازیابی جدید» هم از همان‌جا ساخته می‌شود.</p>'},
+{id:'set',t:'تنظیمات، نام‌ها، ظاهر و نوع کار',r:['admin'],b:'<p>نام دوکان، علامت پول، نام «'+lc+'» و «'+li+'» (مثلاً برای دواخانه: مریض و دوا) را تغییر دهید.</p>'
++'<p><b>نوع کار</b> را هر وقت خواستید عوض کنید (دوکان، دواخانه، وارداتی، ساختمانی، عمومی)؛ اطلاعات پاک نمی‌شود.</p>'
++'<p><b>ظاهر</b>: لوگو و عکس پس‌زمینه بگذارید، رنگ برنامه را انتخاب کنید.</p>'},
+{id:'safe',t:'امنیت اطلاعات و کاپی‌گیری',r:['all'],b:'<p>اطلاعات داخل همین مرورگر است. اگر مرورگر پاک شود یا موبایل خراب شود، بدون کاپی اطلاعات از بین می‌رود.</p>'
++'<p>برنامه خودش یک کاپی روزانه داخل دستگاه نگه می‌دارد و پیش از کارهای خطرناک (پاک کردن همه چیز، حذف مشتری با حساب) هم کاپی می‌گیرد؛ از «تنظیمات» برمی‌گردد.</p>'
++'<p>ولی این کافی نیست؛ حتماً با دکمه <b>«ارسال کاپی»</b> (در صفحه خانه یا تنظیمات) هفته‌ای یک بار فایل را به تلگرام یا ایمیل خودتان بفرستید. اگر چند روز کاپی نگیرید، کارت هشدار زرد یا قرمز می‌آید.</p>'},
+{id:'lic',t:'فعال‌سازی برنامه',r:['all'],b:'<p>هر دستگاه تازه چند روز آزمایشی دارد. بعد از تمام شدن، صفحه فعال‌سازی «شناسه دستگاه» را نشان می‌دهد؛ آن را برای فروشنده برنامه بفرستید تا کد فعال‌سازی بدهد.</p>'},
+{id:'help2',t:'اگر مشکلی پیش آمد',r:['all'],b:'<p>اگر برنامه پیام «اطلاعات ذخیره نشد» داد، همان لحظه کاپی بگیرید و بفرستید.</p>'
++'<p>اگر برنامه باز نشد یا اطلاعات نپرید، آن را کامل ببندید و دوباره باز کنید؛ همیشه از همان جای قبلی (یا آیکون نصب‌شده روی صفحه اصلی) باز کنید.</p>'
++'<p>برای هر مشکل دیگر، با شماره‌های پایین «درباره» (پایین صفحه تنظیمات) تماس بگیرید.</p>'}
+]}
+function qsCard(){return '<div class="c"><b>شروع سریع برای تازه‌کار</b><div class="qs">'
++'<div>وارد شوید و با منوی پایین آشنا شوید.</div><div>چند '+esc(D.s.li||'جنس')+' با قیمت خرید و فروش بسازید.</div>'
++'<div>یک '+esc(D.s.lc||'مشتری')+' بسازید و اولین فروش را با «فروش با فاکتور» بزنید.</div>'
++'<div>یک رسید پول ثبت کنید و در صفحه همان شخص، دفتر حساب را ببینید.</div>'
++'<div>از «تنظیمات» کاپی بگیرید و برای خودتان بفرستید.</div></div></div>'}
+V.help=()=>{const role=U.role,all=guideData().filter(x=>x.r.includes('all')||x.r.includes(role)),q=HQ.trim();
+const list=q?all.filter(x=>x.t.includes(q)||x.b.includes(q)):all;
+return '<input placeholder="جستجو در راهنما..." value="'+esc(HQ)+'" oninput="HQ=this.value;render(1)">'
++(q?'':qsCard())+'<div class="bar"><button class="btn g2" onclick="printGuide()">چاپ راهنما (A4)</button></div>'
++(list.map((x,k)=>'<details class="gd"'+(q&&list.length<=3?' open':'')+'><summary>'+esc(x.t)+'</summary><div class="gdb">'+x.b+'</div></details>').join('')||'<div class="c m">چیزی پیدا نشد.</div>')};
+function printGuide(){const role=U.role,list=guideData().filter(x=>x.r.includes('all')||x.r.includes(role));
+ph('راهنمای برنامه',list.map(x=>'<div class="pt" style="font-size:13pt;text-align:right;margin:16px 0 4px">'+esc(x.t)+'</div><div>'+x.b+'</div>').join(''))}
+
 /* ===== آوردن اطلاعات از برنامه دیگر (فروشگاه) ===== */
 function impCard(){return '<div class="c"><b>آوردن اطلاعات از برنامه دیگر</b><div class="m">فایل کاپی (.json) برنامه فروشگاه را انتخاب کنید. اطلاعات به اطلاعات فعلی <b>اضافه</b> می‌شود و چیزی پاک نمی‌شود.</div><div class="bar"><button class="btn g2" onclick="$(\'#if\').click()">انتخاب فایل کاپی</button></div><input type="file" id="if" accept=".json" style="display:none" onchange="impRead(this.files[0]);this.value=\'\'"></div>'}
 function impRead(file){if(!file)return;const r=new FileReader();r.onload=()=>{let x;try{x=JSON.parse(r.result)}catch(e){return toast('فایل درست نیست')}
@@ -741,7 +827,7 @@ function qQ(k,d){CT[k].qty+=d;if(CT[k].qty<=0)CT.splice(k,1);qCart()}
 function qCart(){const t=sum(CT,l=>l.qty*D.items.find(i=>i.id==l.item).price);$('#qc').innerHTML=CT.map((l,k)=>{const it=D.items.find(i=>i.id==l.item);return '<div class="r" style="padding:6px 0;border-bottom:1px solid var(--ln)"><span>'+esc(it.name)+'<br><small>'+f(it.price)+'</small></span><span><button class="x" onclick="qQ('+k+',-1)">−</button> <b>'+f(l.qty)+'</b> <button class="x" style="color:var(--ac)" onclick="qQ('+k+',1)">+</button></span></div>'}).join('')+'<div class="c r" style="margin-top:10px"><span>جمع</span><b>'+f(t)+' '+cur()+'</b></div>'}
 function qSave(){if(!CT.length)return toast('چیزی انتخاب نشده');E={type:'sale',party:null,lines:CT.map(l=>({item:l.item,qty:l.qty,price:D.items.find(i=>i.id==l.item).price})),paid:'',disc:''};saveDoc()}
 
-const TABS=[['home','خانه'],['inv','فاکتور'],['items','اجناس'],['parties','اشخاص'],['cash','صندوق'],['co','شرکت'],['set','تنظیمات']];
+const TABS=[['home','خانه'],['inv','فاکتور'],['items','اجناس'],['parties','اشخاص'],['cash','صندوق'],['co','شرکت'],['set','تنظیمات'],['help','راهنما']];
 function render(keep){if(licLocked())return lockScreen();if(!U)return;const tb=tabsFor();if(!tb.some(t=>t[0]==T)&&T!='pv'&&T!='debts'&&T!='rep'&&T!='rcp'&&T!='acc')T=tb[0][0];$('#hn').innerHTML=hdr(D.s.name);$('#hu').style.display='';$('#hu').textContent=U.name;
 $('#nv').innerHTML=tb.map(t=>'<button class="'+((T==t[0]||(t[0]=='parties'&&(T=='pv'||T=='debts')))?'on':'')+'" onclick="T=\''+t[0]+'\';Q=\'\';render()">'+t[1]+'</button>').join('');
 const a=keep&&document.activeElement&&document.activeElement.tagName=='INPUT'?document.activeElement.selectionStart:null;
