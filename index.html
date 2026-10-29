@@ -60,6 +60,23 @@ body.hasbg{background-size:cover;background-attachment:fixed;background-position
 .hasbg .c,.hasbg .sh{background:rgba(255,255,255,.9)}.hasbg.dk .c,.hasbg.dk .sh{background:rgba(24,37,36,.9)}
 .rw{display:flex;gap:6px;align-items:center}.rw .t{cursor:pointer}
 #pr{display:none}
+header button.bell{position:relative;background:rgba(255,255,255,.22);padding:7px 11px;font-size:16px;line-height:1}
+.bdg{position:absolute;top:-5px;left:-5px;background:#e2355a;color:#fff;border-radius:99px;min-width:17px;height:17px;font-size:10px;font-weight:800;align-items:center;justify-content:center;padding:0 3px;display:none;box-shadow:0 0 0 2px var(--ac)}
+.bdg.on{display:flex}
+.c{box-shadow:0 1px 2px rgba(20,40,38,.05),0 1px 1px rgba(20,40,38,.04);border-radius:14px}
+@media(min-width:860px){
+body{padding-bottom:0}
+header{margin-right:240px}
+#app{margin-right:240px;max-width:1120px;padding:22px 26px}
+.d3{grid-template-columns:repeat(4,1fr)}
+.g{grid-template-columns:repeat(4,1fr)}
+nav{position:fixed;top:0;bottom:0;right:0;left:auto;width:240px;display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(180deg,var(--ac),#0a4a44);border-top:0;border-left:3px solid rgba(0,0,0,.12);padding:16px 12px;gap:4px;overflow-y:auto}
+nav::before{content:'NN حساب';display:block;color:#fff;font-weight:800;font-size:18px;letter-spacing:.3px;padding:6px 10px 16px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:10px}
+nav button{border:0;background:transparent;color:rgba(255,255,255,.86);text-align:right;padding:12px 14px;border-radius:10px;font-size:15px;font-weight:700;box-shadow:none}
+nav button.on{background:rgba(255,255,255,.2);color:#fff}
+.sh{max-width:520px;border-radius:16px;margin:0 auto 10vh}
+}
+
 @media print{@page{size:A4;margin:12mm}html,body{background:#fff!important;color:#000!important;padding:0!important}body>*:not(#pr){display:none!important}
 #pr{display:block!important;direction:rtl;font:12pt/1.55 Vazirmatn,Tahoma,sans-serif;color:#000}
 #pr table{width:100%;border-collapse:collapse;margin:10px 0}#pr th,#pr td{border:1px solid #444;padding:5px 8px;text-align:right}#pr th{background:#e8e8e8}
@@ -80,7 +97,7 @@ details.gd .gdb{padding:0 12px 14px;color:var(--ink);line-height:1.95}
 </style>
 </head>
 <body>
-<header><span id="hn"></span><button id="hu" onclick="me()" style="display:none"></button></header>
+<header><span id="hn"></span><div style="display:flex;align-items:center;gap:8px"><button id="bl" class="bell" onclick="notifPanel()" style="display:none">🔔<span id="blb" class="bdg"></span></button><button id="hu" onclick="me()" style="display:none"></button></div></header>
 <div id="app"></div>
 <nav id="nv"></nav>
 <div id="m"></div>
@@ -90,9 +107,9 @@ details.gd .gdb{padding:0 12px 14px;color:var(--ink);line-height:1.95}
 const KEY='hesab_db_v1';
 let D,T='home',Q='',PF='c',E,U=null;
 function load(){try{D=JSON.parse(localStorage.getItem(KEY))}catch(e){}
-D=D||{s:{name:'نام شرکت',cur:'؋',lc:'مشتری',li:'جنس'},items:[],parties:[],docs:[],pays:[],exps:[],seq:1};
-D.ships=D.ships||[];D.projs=D.projs||[];D.users=D.users||[]}
-const APPV='3.7';
+D=D||{s:{name:'نام شرکت',cur:'؋',lc:'مشتری',li:'جنس'},items:[],parties:[],docs:[],pays:[],exps:[],seq:1,notifs:[]};
+D.ships=D.ships||[];D.projs=D.projs||[];D.users=D.users||[];D.notifs=D.notifs||[]}
+const APPV='3.9';
 const IDB={db:null,open(cb){try{const r=indexedDB.open('nnhesab',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>{IDB.db=r.result;cb()};r.onerror=()=>cb();r.onblocked=()=>cb()}catch(e){cb()}},
 put(v){try{IDB.db&&IDB.db.transaction('k','readwrite').objectStore('k').put(v,'D')}catch(e){}},
 clear(){IDB.delK('D')},
@@ -150,7 +167,9 @@ const ROLE={admin:'مدیر',acct:'حسابدار',seller:'فروشنده'};
 const isA=()=>U&&U.role=='admin',isS=()=>U&&U.role=='seller';
 const tabsFor=()=>TABS.filter(t=>t[0]=='help'||((t[0]!='co'||D.s.imp||D.s.con)&&(isA()||(U.role=='acct'?t[0]!='set':['inv','items','parties'].includes(t[0])))));
 const rnd=n=>{let r='',c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(let i=0;i<n;i++)r+=c[Math.floor(Math.random()*c.length)];return r};
-function migD(){D.jr=D.jr||[];if((D.v||0)>=3)return;
+function migD(){D.jr=D.jr||[];D.notifs=D.notifs||[];(D.users||[]).forEach(u=>{if(!u.rd)u.rd=[]});
+if(!D.ns){D.notifs.unshift({id:id(),title:SEED_NOTIF_TITLE,body:SEED_NOTIF_BODY,date:today(),type:'info',important:1});D.ns=1;save()}
+if((D.v||0)>=3)return;
 D.docs.forEach(d=>{if(d.cur=='USD'&&d.rate){d.total=Math.round(d.total/d.rate*100)/100;d.paid=Math.round((d.paid||0)/d.rate*100)/100}});
 D.pays.forEach(y=>{if(y.cur)return;const d=y.doc&&D.docs.find(x=>x.id==y.doc);
 if(d&&d.cur=='USD'){y.cur='USD';y.amount=Math.round(y.amount/d.rate*100)/100;return}
@@ -159,7 +178,7 @@ D.v=3;save()}
 function boot(){closeM();applyTheme();migD();if(licLocked())return lockScreen();U=D.users.find(u=>u.id==sget('hu'))||null;if(!D.users.length)setup();else if(!U)loginScr();else render()}
 function entry(title,h){$('#nv').innerHTML='';$('#hn').innerHTML=hdr(title);$('#hu').style.display='none';$('#app').innerHTML=h+foot()}
 const PRE=[['shop','دوکان / سوپرمارکیت'],['pharm','دواخانه'],['imp','شرکت وارداتی و صادراتی'],['con','شرکت ساختمانی'],['gen','عمومی']];
-function setup(){entry('شروع کار','<div class="c"><b>تنظیم اولیه</b><label>نام شرکت یا دوکان<input id="s_n"></label><label>نوع کار<select id="s_t">'+PRE.map(p=>'<option value="'+p[0]+'">'+p[1]+'</option>').join('')+'</select></label><label>نام شما (مدیر)<input id="s_f"></label><label>نام کاربری<input id="s_u" autocapitalize="off"></label><label>رمز (حداقل ۴ حرف)<input id="s_p" type="password"></label><div class="bar"><button class="btn" onclick="doSetup()">شروع</button></div></div><div class="c"><b>قبلاً کاپی دارید؟</b><div class="m">کاپی را برگردانید؛ کاربرها و رمزها هم برمی‌گردند و رمز تازه لازم نیست.</div><div class="bar"><button class="btn g2" onclick="$(\'#rf2\').click()">برگرداندن از کاپی</button>'+(SB()?'<button class="btn g2" onclick="syLoginBox()">ورود با حساب آنلاین</button>':'')+'</div><input type="file" id="rf2" accept=".json" style="display:none" onchange="restore(this.files[0])"></div>')}
+function setup(){entry('شروع کار','<div style="text-align:center;margin-bottom:4px">'+lg(1)+'<div class="m" style="margin-top:2px">مدیریت آسان، حسابداری دقیق برای هر کسب‌وکار</div></div>'+'<div class="c"><b>تنظیم اولیه</b><label>نام شرکت یا دوکان<input id="s_n"></label><label>نوع کار<select id="s_t">'+PRE.map(p=>'<option value="'+p[0]+'">'+p[1]+'</option>').join('')+'</select></label><label>نام شما (مدیر)<input id="s_f"></label><label>نام کاربری<input id="s_u" autocapitalize="off"></label><label>رمز (حداقل ۴ حرف)<input id="s_p" type="password"></label><div class="bar"><button class="btn" onclick="doSetup()">شروع</button></div></div><div class="c"><b>قبلاً کاپی دارید؟</b><div class="m">کاپی را برگردانید؛ کاربرها و رمزها هم برمی‌گردند و رمز تازه لازم نیست.</div><div class="bar"><button class="btn g2" onclick="$(\'#rf2\').click()">برگرداندن از کاپی</button>'+(SB()?'<button class="btn g2" onclick="syLoginBox()">ورود با حساب آنلاین</button>':'')+'</div><input type="file" id="rf2" accept=".json" style="display:none" onchange="restore(this.files[0])"></div>')}
 function doSetup(){const n=$('#s_n').value.trim(),t=$('#s_t').value,f=$('#s_f').value.trim(),u=$('#s_u').value.trim().toLowerCase(),p=$('#s_p').value;
 if(!n||!f||!u)return toast('همه خانه‌ها را پر کنید');if(p.length<4)return toast('رمز حداقل ۴ حرف باشد');
 D.s.name=n;if(t=='pharm'){D.s.lc='مریض';D.s.li='دوا'}if(t=='imp')D.s.imp=1;if(t=='con'){D.s.con=1;D.s.lc='کارفرما';D.s.li='مواد'}
@@ -172,13 +191,36 @@ function lockLeft(){return Math.ceil(((D.until||0)-Date.now())/1000)}
 function failed(){D.fail=(D.fail||0)+1;if(D.fail>=5){D.fail=0;D.lr=Math.min((D.lr||0)+1,6);D.until=Date.now()+30000*Math.pow(2,D.lr-1)}save()}
 function okLogin(){D.fail=0;D.lr=0;D.until=0;save()}
 function lockMsg(){const t=lockLeft();return 'بیش از حد تلاش شد؛ '+(t>90?Math.ceil(t/60)+' دقیقه':t+' ثانیه')+' صبر کنید'}
-function loginScr(){entry(D.s.name,'<div class="c"><label>نام کاربری<input id="l_u" autocapitalize="off"></label><label>رمز<input id="l_p" type="password" onkeydown="if(event.key==\'Enter\')doLogin()"></label><div class="bar"><button class="btn" onclick="doLogin()">ورود</button></div><div class="m" style="text-align:center;margin-top:12px" onclick="forgot()">رمز مدیر را فراموش کرده‌ام</div><div class="m" style="text-align:center;margin-top:10px" onclick="$(\'#rf2\').click()">برگرداندن از کاپی</div><input type="file" id="rf2" accept=".json" style="display:none" onchange="restore(this.files[0])"></div>')}
+function loginScr(){entry(D.s.name,'<div style="text-align:center;margin-bottom:4px">'+lg(1)+'<div class="m" style="margin-top:2px">مدیریت آسان، حسابداری دقیق برای هر کسب‌وکار</div></div>'+'<div class="c"><label>نام کاربری<input id="l_u" autocapitalize="off"></label><label>رمز<input id="l_p" type="password" onkeydown="if(event.key==\'Enter\')doLogin()"></label><div class="bar"><button class="btn" onclick="doLogin()">ورود</button></div><div class="m" style="text-align:center;margin-top:12px" onclick="forgot()">رمز مدیر را فراموش کرده‌ام</div><div class="m" style="text-align:center;margin-top:10px" onclick="$(\'#rf2\').click()">برگرداندن از کاپی</div><input type="file" id="rf2" accept=".json" style="display:none" onchange="restore(this.files[0])"></div>')}
 function doLogin(){if(lockLeft()>0)return toast(lockMsg());const u=D.users.find(x=>x.user==$('#l_u').value.trim().toLowerCase());if(!u||hp($('#l_p').value,u.salt)!=u.pass){failed();return toast(lockLeft()>0?lockMsg():'نام کاربری یا رمز درست نیست')}okLogin();U=u;sset('hu',u.id);T=tabsFor()[0][0];render()}
 function logout(){U=null;sset('hu','');boot()}
 function forgot(){form('بازیابی رمز مدیر',[{k:'u',l:'نام کاربری مدیر'},{k:'c',l:'کد بازیابی یا کد پشتیبان'},{k:'p',l:'رمز جدید',t:'password'}],v=>{if(lockLeft()>0){toast(lockMsg());return false}
 const u=D.users.find(x=>x.user==v.u.toLowerCase()&&x.role=='admin'),h=u&&hp(v.c.toUpperCase(),u.salt);
 if(!u||!(h==u.rec||(u.sup&&h==u.sup))){failed();toast(lockLeft()>0?lockMsg():'نام کاربری یا کد درست نیست');return false}
 if(v.p.length<4){toast('رمز حداقل ۴ حرف باشد');return false}okLogin();u.pass=hp(v.p,u.salt);toast('رمز عوض شد؛ وارد شوید')})}
+/* ===== اطلاعیه‌ها (زنگوله) ===== */
+const SEED_NOTIF_TITLE='\u0628\u0647\u200c\u0631\u0648\u0632\u0631\u0633\u0627\u0646\u06cc \u062c\u062f\u06cc\u062f NN \u062d\u0633\u0627\u0628';
+const SEED_NOTIF_BODY=`\u0645\u0634\u062a\u0631\u06cc\u0627\u0646 \u06af\u0631\u0627\u0645\u06cc!
+
+\u0633\u06cc\u0633\u062a\u0645 NN \u062d\u0633\u0627\u0628 \u062f\u0631 \u062d\u0627\u0644 \u0628\u0647\u200c\u0631\u0648\u0632\u0631\u0633\u0627\u0646\u06cc \u0648 \u0628\u0647\u0628\u0648\u062f \u0637\u0631\u0627\u062d\u06cc \u0627\u0633\u062a \u062a\u0627 \u0627\u0633\u062a\u0641\u0627\u062f\u0647 \u0627\u0632 \u0622\u0646 \u062f\u0631 \u0645\u0648\u0628\u0627\u06cc\u0644 \u0648 \u06a9\u0645\u067e\u06cc\u0648\u062a\u0631 \u0622\u0633\u0627\u0646\u200c\u062a\u0631 \u0648 \u062a\u062c\u0631\u0628\u0647 \u06a9\u0627\u0631\u0628\u0631\u06cc \u0628\u0647\u062a\u0631 \u0634\u0648\u062f.
+
+\u0627\u06cc\u0646 \u062a\u063a\u06cc\u06cc\u0631\u0627\u062a \u0628\u0627 \u0647\u062f\u0641 \u0628\u0647\u0628\u0648\u062f \u0638\u0627\u0647\u0631 \u0648 \u0633\u0647\u0648\u0644\u062a \u0627\u0633\u062a\u0641\u0627\u062f\u0647 \u0627\u0646\u062c\u0627\u0645 \u0645\u06cc\u200c\u0634\u0648\u062f. \u0644\u0637\u0641\u0627\u064b \u062a\u0648\u062c\u0647 \u062f\u0627\u0634\u062a\u0647 \u0628\u0627\u0634\u06cc\u062f \u06a9\u0647 \u062a\u063a\u06cc\u06cc\u0631 \u0638\u0627\u0647\u0631 \u0628\u0647\u200c\u062e\u0648\u062f\u06cc\u200c\u062e\u0648\u062f \u0628\u0647 \u0645\u0639\u0646\u0627\u06cc \u062d\u0630\u0641 \u0627\u0637\u0644\u0627\u0639\u0627\u062a \u0646\u06cc\u0633\u062a.
+
+\u062d\u0641\u0638 \u0627\u0637\u0644\u0627\u0639\u0627\u062a \u062d\u0633\u0627\u0628\u062f\u0627\u0631\u06cc \u0648 \u0627\u0639\u062a\u0645\u0627\u062f \u0634\u0645\u0627 \u0628\u0631\u0627\u06cc \u0645\u0627 \u0627\u0647\u0645\u06cc\u062a \u0627\u0633\u0627\u0633\u06cc \u062f\u0627\u0631\u062f. \u062f\u0631 \u0635\u0648\u0631\u062a \u0645\u0634\u0627\u0647\u062f\u0647 \u0647\u0631\u06af\u0648\u0646\u0647 \u0645\u0634\u06a9\u0644 \u062f\u0631 \u0627\u0637\u0644\u0627\u0639\u0627\u062a \u06cc\u0627 \u0639\u0645\u0644\u06a9\u0631\u062f \u062d\u0633\u0627\u0628\u060c \u0644\u0637\u0641\u0627\u064b \u067e\u06cc\u0634 \u0627\u0632 \u0627\u0646\u062c\u0627\u0645 \u062a\u063a\u06cc\u06cc\u0631\u0627\u062a \u0645\u0647\u0645 \u0628\u0627 \u0645\u062f\u06cc\u0631\u06cc\u062a \u062a\u0645\u0627\u0633 \u0628\u06af\u06cc\u0631\u06cc\u062f.
+
+\u0627\u0632 \u0627\u0639\u062a\u0645\u0627\u062f \u0648 \u0647\u0645\u0631\u0627\u0647\u06cc \u0634\u0645\u0627 \u0633\u067e\u0627\u0633\u06af\u0632\u0627\u0631\u06cc\u0645.
+
+\u062a\u06cc\u0645 NN \u062d\u0633\u0627\u0628`;
+const unreadCount=u=>u?D.notifs.filter(n=>!(u.rd||[]).includes(n.id)).length:0;
+function notifAdd(title,body,important){D.notifs.unshift({id:id(),title,body,date:today(),type:'info',important:important?1:0});save();renderBell()}
+function renderBell(){const b=$('#bl');if(!U){b.style.display='none';return}b.style.display='';const n=unreadCount(U);$('#blb').textContent=n>9?'9+':String(n);$('#blb').className='bdg'+(n?' on':'')}
+function notifPanel(){const L=(D.notifs||[]).slice().sort((a,b)=>b.id-a.id);
+modal('<h3>\u0627\u0637\u0644\u0627\u0639\u06cc\u0647\u200c\u0647\u0627</h3>'+(L.length?'<div class="bar"><button class="btn g2" onclick="notifReadAll()">\u0647\u0645\u0647 \u0631\u0627 \u062e\u0648\u0627\u0646\u062f\u0645</button></div>':'')
++(L.map(n=>{const rd=(U.rd||[]).includes(n.id);return '<div class="c" style="border-right:4px solid '+(n.important?'var(--bad)':'var(--ac)')+(rd?'':';font-weight:700')+'" onclick="notifOpen('+n.id+')"><div class="r"><span>'+(rd?'':'\u25cf ')+esc(n.title)+'</span>'+(n.important?'<span class="t">\u0645\u0647\u0645</span>':'')+'</div><div class="m">'+fd(n.date)+'</div></div>'}).join('')||'<div class="c m">\u0627\u0637\u0644\u0627\u0639\u06cc\u0647\u200c\u0627\u06cc \u0646\u06cc\u0633\u062a.</div>'))}
+function notifOpen(i){const n=(D.notifs||[]).find(x=>x.id==i);if(!n)return;if(!U.rd)U.rd=[];if(!U.rd.includes(i)){U.rd.push(i);save()}
+modal('<h3>'+esc(n.title)+'</h3><div class="m">'+fd(n.date)+(n.important?' \u00b7 \u0645\u0647\u0645':'')+'</div><p style="white-space:pre-wrap;line-height:1.95;margin-top:10px">'+esc(n.body)+'</p><div class="bar"><button class="btn g2" onclick="notifPanel()">\u0628\u0631\u06af\u0634\u062a</button><button class="btn g2" onclick="closeM()">\u0628\u0633\u062a\u0646</button></div>');renderBell()}
+function notifReadAll(){U.rd=(D.notifs||[]).map(n=>n.id);save();notifPanel();renderBell()}
+
 function me(){modal('<h3>'+esc(U.name)+'</h3><div class="m">@'+esc(U.user)+' · '+ROLE[U.role]+'</div><div class="bar"><button class="btn g2" onclick="chPw()">تغییر رمز</button><button class="btn d" onclick="logout()">خروج</button></div><div class="bar"><button class="btn g2" onclick="about()">درباره برنامه</button><button class="btn g2" onclick="closeM()">بستن</button></div>')}
 function chPw(){form('تغییر رمز',[{k:'o',l:'رمز فعلی',t:'password'},{k:'n',l:'رمز جدید (حداقل ۴ حرف)',t:'password'}],v=>{if(hp(v.o,U.salt)!=U.pass||v.n.length<4){toast('رمز فعلی درست نیست یا رمز جدید کوتاه است');return false}U.pass=hp(v.n,U.salt);toast('رمز عوض شد')})}
 function usersCard(){return '<div class="c"><b>کاربران</b>'+D.users.map(u=>'<div class="r" style="padding:6px 0" onclick="userForm('+u.id+')"><span>'+esc(u.name)+' <small>@'+esc(u.user)+'</small></span><span class="t">'+ROLE[u.role]+'</span></div>').join('')+'<div class="bar"><button class="btn g2" onclick="userForm()">+ کاربر جدید</button>'+(isA()?'<button class="btn g2" onclick="newRec()">کد بازیابی جدید</button>':'')+'</div><div class="m">فروشنده فقط فاکتور فروش، دیدن اجناس و ثبت مشتری می‌تواند. حسابدار همه چیز را جز تنظیمات می‌بیند.</div></div>'}
@@ -191,6 +233,24 @@ u.id&&u.id!=U.id?'<div class="bar"><button class="btn d" onclick="delUser('+u.id
 function delUser(i){const u=D.users.find(x=>x.id==i);if(u.role=='admin'&&D.users.filter(x=>x.role=='admin').length<2)return toast('باید حداقل یک مدیر بماند');if(confirm('حذف شود؟')){D.users=D.users.filter(x=>x.id!=i);save();closeM();render()}}
 function resetAll(){if(confirm('همه اطلاعات و کاربران پاک می‌شود. مطمئن هستید؟')){snapNow('قبل از پاک کردن همه اطلاعات');localStorage.removeItem(KEY);IDB.clear();load();U=null;sset('hu','');boot()}}
 const V={};
+/* ===== داشبورد: خلاصه مالی (نمودار دایره‌ای)، آخرین فاکتورها، آخرین فعالیت‌ها ===== */
+function finSummary(){const m=pm(today()),rp=repData(x=>pm(x)==m),P=[rp.sales,rp.buys,rp.exp,Math.max(rp.profit-rp.exp,0)];
+const T=P.reduce((a,b)=>a+b,0);if(!T)return '';const COL=['#19b87c','#a96cf2','#e0603a','#3f93ec'];let acc=0;
+const stops=P.map((v,i)=>{const a0=acc/T*360;acc+=v;const a1=acc/T*360;return COL[i]+' '+a0.toFixed(1)+'deg '+a1.toFixed(1)+'deg'}).join(',');
+const lbl=[['فروش',rp.sales],['خرید',rp.buys],['مصارف',rp.exp],['سود خالص',rp.net]];
+return '<div class="c"><b>خلاصه وضعیت مالی (ماه '+pml(m)+')</b><div style="display:flex;align-items:center;gap:16px;margin-top:8px;flex-wrap:wrap">'
++'<div style="width:92px;height:92px;border-radius:99px;flex:none;background:conic-gradient('+stops+')"></div>'
++'<div style="flex:1;min-width:140px">'+lbl.map((x,i)=>'<div class="r m" style="padding:3px 0"><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+COL[i]+';margin-left:6px;vertical-align:-1px"></i>'+x[0]+'</span><span>'+f(x[1])+' '+cur()+'</span></div>').join('')+'</div></div></div>'}
+function latestInv(){const L=D.docs.slice().sort((a,b)=>b.id-a.id).slice(0,5);if(!L.length)return '';
+return '<div class="c"><b>آخرین فاکتورها</b>'+L.map(d=>'<div class="r m" style="padding:4px 0" onclick="viewDoc('+d.id+')"><span>'+esc(d.no)+' · '+esc(pname(d.party))+'</span><span>'+f(d.total)+' '+cs(d.cur)+' · '+fd(d.date)+'</span></div>').join('')+'</div>'}
+function activity(){const ev=[];
+D.docs.forEach(d=>ev.push({id:d.id,t:tlab(d)+' '+(d.type=='purchase'?'از':'به')+' '+pname(d.party),ic:d.type=='sale'?'🛒':d.type=='purchase'?'📦':d.type=='return'?'↩️':'🎁'}));
+D.pays.forEach(y=>ev.push({id:y.id,t:(y.dir=='in'?'دریافت پول از ':'پرداخت پول به ')+pname(y.party),ic:'💵'}));
+D.parties.forEach(p=>ev.push({id:p.id,t:'افزودن '+(p.type=='c'?esc(D.s.lc):'تمویل‌کننده')+' تازه: '+esc(p.name),ic:'👤'}));
+D.items.forEach(i=>ev.push({id:i.id,t:'افزودن '+esc(D.s.li)+' تازه: '+esc(i.name),ic:'📥'}));
+const L=ev.sort((a,b)=>b.id-a.id).slice(0,6);if(!L.length)return '';
+return '<div class="c"><b>آخرین فعالیت‌ها</b>'+L.map(e=>'<div class="r m" style="padding:4px 0"><span>'+e.ic+' '+e.t+'</span></div>').join('')+'</div>'}
+
 V.home=()=>{const t=today(),sd=D.docs.filter(d=>d.type=='sale'&&d.date==t);
 const rd=D.docs.filter(d=>d.type=='return'&&d.date==t),gp0=d=>sum(d.lines,l=>(l.price*dr(d)-(l.cost||0))*l.qty)-(d.disc||0)*dr(d);
 const ts=sum(sd.filter(d=>(d.cur||'AFN')=='AFN'),d=>d.total)-sum(rd.filter(d=>(d.cur||'AFN')=='AFN'),d=>d.total),tsU=sum(sd.filter(d=>d.cur=='USD'),d=>d.total)-sum(rd.filter(d=>d.cur=='USD'),d=>d.total),pr=sum(sd,gp0)-sum(rd,gp0);
@@ -200,7 +260,7 @@ const k=(c1,c2,t,a,u)=>'<div class="k" style="--k1:'+c1+';--k2:'+c2+'"><small>'+
 return licNote()+bkNote()+'<div class="d3">'+k('#19b87c','#0a6b4a','فروش امروز',ts,tsU)+k('#f4b627','#b4700a','فایده امروز (تخمینی)',pr,0)+k('#3f93ec','#1b4c9a','موجودی صندوق',cash(),cashU())+k('#a96cf2','#5a2da6','طلب از '+esc(D.s.lc)+'‌ها',rc.a,rc.u)+'</div>'
 +'<div class="c r"><span>قرض به تمویل‌کننده‌ها</span><b>'+mny(py.a,py.u)+'</b></div>'+chart7()+(isA()||U.role=='acct'?'<div class="bar"><button class="btn g2" onclick="T=\'rep\';render()">گزارش ماهانه</button><button class="btn g2" onclick="T=\'acc\';render()">حسابداری</button></div>':'')
 +'<div class="bar"><button class="btn" onclick="quick()">فروش سریع</button></div><div class="bar"><button class="btn g2" onclick="newDoc(\'sale\')">فروش با فاکتور</button><button class="btn g2" onclick="newDoc(\'purchase\')">خرید جدید</button></div>'
-+'<div class="c"><b>کمبود موجودی ('+low.length+')</b>'+(low.length?low.map(i=>'<div class="r m"><span>'+esc(i.name)+'</span><span class="bad">'+f(stock(i))+'</span></div>').join(''):'<div class="m">همه چیز کافی است.</div>')+'</div>'+foot()};
++'<div class="c"><b>کمبود موجودی ('+low.length+')</b>'+(low.length?low.map(i=>'<div class="r m"><span>'+esc(i.name)+'</span><span class="bad">'+f(stock(i))+'</span></div>').join(''):'<div class="m">همه چیز کافی است.</div>')+'</div>'+finSummary()+latestInv()+activity()+foot()};
 
 V.inv=()=>'<div class="bar"><button class="btn" onclick="quick()">فروش سریع</button></div><div class="bar"><button class="btn g2" onclick="newDoc(\'sale\')">فروش با فاکتور</button><button class="btn g2" onclick="newDoc(\'return\')">مرجوعی</button><button class="btn g2" onclick="newSample()">سمپل</button>'+(isS()?'':'<button class="btn g2" onclick="newDoc(\'purchase\')">خرید جدید</button>')+'</div>'
 +(D.docs.length?D.docs.slice().reverse().slice(0,60).map(d=>'<div class="c r" onclick="viewDoc('+d.id+')"><div><b>'+d.no+'</b> <span class="t">'+tlab(d)+'</span><br><small>'+esc(pname(d.party))+' · '+fd(d.date)+'</small></div><div><b>'+f(d.total)+' '+cs(d.cur)+'</b>'+(d.type!='return'&&d.paid<d.total?'<br><small class="bad">باقی: '+f(d.total-d.paid)+' '+cs(d.cur)+'</small>':'')+'</div></div>').join(''):'<div class="c m">هنوز فاکتوری ثبت نشده. با «فروش جدید» شروع کنید.</div>');
@@ -827,8 +887,8 @@ function qQ(k,d){CT[k].qty+=d;if(CT[k].qty<=0)CT.splice(k,1);qCart()}
 function qCart(){const t=sum(CT,l=>l.qty*D.items.find(i=>i.id==l.item).price);$('#qc').innerHTML=CT.map((l,k)=>{const it=D.items.find(i=>i.id==l.item);return '<div class="r" style="padding:6px 0;border-bottom:1px solid var(--ln)"><span>'+esc(it.name)+'<br><small>'+f(it.price)+'</small></span><span><button class="x" onclick="qQ('+k+',-1)">−</button> <b>'+f(l.qty)+'</b> <button class="x" style="color:var(--ac)" onclick="qQ('+k+',1)">+</button></span></div>'}).join('')+'<div class="c r" style="margin-top:10px"><span>جمع</span><b>'+f(t)+' '+cur()+'</b></div>'}
 function qSave(){if(!CT.length)return toast('چیزی انتخاب نشده');E={type:'sale',party:null,lines:CT.map(l=>({item:l.item,qty:l.qty,price:D.items.find(i=>i.id==l.item).price})),paid:'',disc:''};saveDoc()}
 
-const TABS=[['home','خانه'],['inv','فاکتور'],['items','اجناس'],['parties','اشخاص'],['cash','صندوق'],['co','شرکت'],['set','تنظیمات'],['help','راهنما']];
-function render(keep){if(licLocked())return lockScreen();if(!U)return;const tb=tabsFor();if(!tb.some(t=>t[0]==T)&&T!='pv'&&T!='debts'&&T!='rep'&&T!='rcp'&&T!='acc')T=tb[0][0];$('#hn').innerHTML=hdr(D.s.name);$('#hu').style.display='';$('#hu').textContent=U.name;
+const TABS=[['home','🏠 خانه'],['inv','🧾 فاکتور'],['items','📦 اجناس'],['parties','👥 اشخاص'],['cash','💰 صندوق'],['co','🏢 شرکت'],['set','⚙️ تنظیمات'],['help','❓ راهنما']];
+function render(keep){if(licLocked())return lockScreen();if(!U)return;const tb=tabsFor();if(!tb.some(t=>t[0]==T)&&T!='pv'&&T!='debts'&&T!='rep'&&T!='rcp'&&T!='acc')T=tb[0][0];$('#hn').innerHTML=hdr(D.s.name);$('#hu').style.display='';$('#hu').textContent=U.name;renderBell();
 $('#nv').innerHTML=tb.map(t=>'<button class="'+((T==t[0]||(t[0]=='parties'&&(T=='pv'||T=='debts')))?'on':'')+'" onclick="T=\''+t[0]+'\';Q=\'\';render()">'+t[1]+'</button>').join('');
 const a=keep&&document.activeElement&&document.activeElement.tagName=='INPUT'?document.activeElement.selectionStart:null;
 $('#app').innerHTML=V[T]();if(a!==null){const e=$('#app input');if(e){e.focus();e.setSelectionRange(a,a)}}else if(!keep)scrollTo(0,0)}

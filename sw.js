@@ -1,6 +1,6 @@
 // NN حساب - service worker
 // هر بار برنامه را تازه کردی، شماره نسخه را بالا ببر (مثلاً 2.1) تا گوشی‌ها نسخه تازه را بگیرند.
-const CACHE = 'nn-hesab-3.7';
+const CACHE = 'nn-hesab-3.9';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
