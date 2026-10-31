@@ -9,12 +9,12 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>NN حساب</title>
 <style>
-:root{--bg:#f4f6f3;--card:#fff;--ink:#14282b;--mut:#3f5254;--ac:#0e6b63;--acf:#fff;--bad:#b3411e;--ln:#bccac3}
-@media(prefers-color-scheme:dark){:root{--bg:#101a1a;--card:#182524;--ink:#e6efec;--mut:#92a8a5;--ac:#3fb5a8;--acf:#08201d;--bad:#ff8a65;--ln:#2a3b3a}}
+:root{--bg:#eaf3f5;--card:#fff;--ink:#14282b;--mut:#4a5a63;--ac:#0e8a79;--ac2:#06534a;--acf:#fff;--bad:#b3411e;--ln:#d7e0e6;--k-cash:#0e9b84;--k-cash2:#077b68;--k-sale:#19b87c;--k-sale2:#0e8a5c;--k-profit:#8b5cf6;--k-profit2:#6333d6;--k-debt:#f3923a;--k-debt2:#d8721a;--k-items:#3f93ec;--k-items2:#1b6fc9}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1a1a;--card:#182524;--ink:#e6efec;--mut:#92a8a5;--ac:#20b49f;--ac2:#06302f;--acf:#08201d;--bad:#ff8a65;--ln:#2a3b3a}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:500 17px/1.55 Vazirmatn,"Noto Naskh Arabic",Tahoma,sans-serif;padding-bottom:96px}
 @media(max-width:640px){body{padding-bottom:150px}}
-header{padding:12px 16px;background:var(--ac);color:var(--acf);font-weight:700;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:8px}header button{background:rgba(255,255,255,.22);color:inherit;border:0;border-radius:99px;padding:4px 12px;font:inherit;font-size:13px}
+header{padding:12px 16px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--acf);font-weight:700;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:8px}header button{background:rgba(255,255,255,.22);color:inherit;border:0;border-radius:99px;padding:4px 12px;font:inherit;font-size:13px}
 #app{padding:12px;max-width:640px;margin:auto}
 .c{background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:12px;margin-bottom:10px}
 .g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
@@ -29,10 +29,13 @@ small,.m{color:var(--mut);font-size:14px}
 .bar{display:flex;gap:8px;margin:12px 0 4px;flex-wrap:wrap}.bar .btn{flex:1}
 input,select{width:100%;padding:10px;border:1px solid var(--ln);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
 label{display:block;margin-top:10px;font-size:14px;color:var(--mut)}
-nav{position:fixed;bottom:0;right:0;left:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:7px;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:2px solid var(--ac)}
+nav{position:fixed;bottom:0;right:0;left:0;display:flex;padding:6px 4px calc(4px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--ln);box-shadow:0 -2px 10px rgba(20,40,40,.06)}
 nav:empty{display:none}
-nav button{padding:12px 4px;border:2px solid var(--ac);border-radius:10px;background:var(--card);color:var(--ac);font:inherit;font-size:15.5px;font-weight:800}
-nav button.on{background:var(--ac);color:var(--acf)}
+nav button{flex:1;min-width:0;border:0;background:none;color:var(--mut);font:inherit;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:12px}
+nav button .ni{font-size:19px;width:40px;height:26px;border-radius:13px;display:flex;align-items:center;justify-content:center;transition:background .12s}
+nav button .nt{font-size:10.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+nav button.on{color:var(--ac)}
+nav button.on .ni{background:var(--ac);color:var(--acf)}
 #m{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9;align-items:flex-end;justify-content:center}
 #m.on{display:flex}
 .sh{background:var(--card);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:14px 14px 0 0;padding:16px}
@@ -47,10 +50,15 @@ h4{margin:14px 0 4px}
 
 .btn.g2{box-shadow:0 3px 0 rgba(0,0,0,.12)}
 header img{height:34px;border-radius:6px;vertical-align:middle;margin-left:8px;background:#fff;padding:2px}
-.d3{display:grid;grid-template-columns:1fr 1fr;gap:16px;perspective:900px;margin:6px 0 18px}
-.k{position:relative;border-radius:16px;padding:14px;color:#fff;background:linear-gradient(145deg,var(--k1),var(--k2));box-shadow:0 16px 20px -10px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,255,255,.4),inset 0 -7px 0 rgba(0,0,0,.2);transform:rotateX(7deg) rotateY(-5deg);transition:transform .2s}
-.k:hover,.k:active{transform:rotateX(0) rotateY(0) translateY(-3px)}
-.k b{display:block;font-size:21px;text-shadow:0 2px 3px rgba(0,0,0,.4)}.k small{color:rgba(255,255,255,.88);font-size:13px}
+.d3{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:6px 0 18px}
+.k{position:relative;border-radius:14px;padding:13px;background:var(--card);border:1px solid var(--ln);box-shadow:0 2px 10px rgba(20,40,40,.07);display:flex;flex-direction:column;gap:8px;transition:transform .12s}
+.k:hover,.k:active{transform:translateY(-2px)}
+.k .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;background:linear-gradient(145deg,var(--k1),var(--k2));color:#fff;box-shadow:0 4px 8px -2px rgba(0,0,0,.35)}
+.hero{border-radius:16px;padding:18px;margin-bottom:12px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;box-shadow:0 10px 22px -8px rgba(6,83,74,.55)}
+.hero .r{align-items:flex-start}.hero .ic{background:rgba(255,255,255,.22);box-shadow:none}
+.hero b{font-size:26px;display:block;margin-top:6px}.hero small{color:rgba(255,255,255,.85)}
+.av{width:40px;height:40px;border-radius:99px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px}
+.k b{display:block;font-size:19px;color:var(--ink)}.k small{color:var(--mut);font-size:13px}
 .ch{display:flex;align-items:flex-end;gap:9px;height:150px;margin-top:10px}
 .cb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px}
 .cb i{display:block;width:100%;border-radius:7px 7px 2px 2px;background:linear-gradient(90deg,var(--ac),rgba(0,0,0,.35));box-shadow:6px 0 0 rgba(0,0,0,.18),inset 0 4px 0 rgba(255,255,255,.4)}
@@ -70,10 +78,13 @@ header{margin-right:240px}
 #app{margin-right:240px;max-width:1120px;padding:22px 26px}
 .d3{grid-template-columns:repeat(4,1fr)}
 .g{grid-template-columns:repeat(4,1fr)}
-nav{position:fixed;top:0;bottom:0;right:0;left:auto;width:240px;display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(180deg,var(--ac),#0a4a44);border-top:0;border-left:3px solid rgba(0,0,0,.12);padding:16px 12px;gap:4px;overflow-y:auto}
+nav{position:fixed;top:0;bottom:0;right:0;left:auto;width:240px;display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(180deg,var(--ac),var(--ac2));border-top:0;border-left:3px solid rgba(0,0,0,.12);padding:16px 12px;gap:4px;overflow-y:auto}
 nav::before{content:'NN حساب';display:block;color:#fff;font-weight:800;font-size:18px;letter-spacing:.3px;padding:6px 10px 16px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:10px}
-nav button{border:0;background:transparent;color:rgba(255,255,255,.86);text-align:right;padding:12px 14px;border-radius:10px;font-size:15px;font-weight:700;box-shadow:none}
+nav button{border:0;background:transparent;color:rgba(255,255,255,.86);flex-direction:row;justify-content:flex-start;text-align:right;padding:12px 14px;border-radius:10px;font-size:15px;font-weight:700;gap:10px}
+nav button .ni{width:auto;height:auto;background:none!important;color:inherit}
+nav button .nt{font-size:15px;font-weight:700;overflow:visible}
 nav button.on{background:rgba(255,255,255,.2);color:#fff}
+nav button.on .ni{background:none!important}
 .sh{max-width:520px;border-radius:16px;margin:0 auto 10vh}
 }
 
@@ -94,6 +105,9 @@ details.gd .gdb{padding:0 12px 14px;color:var(--ink);line-height:1.95}
 .gdb ol,.gdb ul{margin:6px 0;padding-right:20px}.gdb li{margin:5px 0}.gdb p{margin:6px 0}
 .qs{counter-reset:qs}.qs>div{counter-increment:qs;display:flex;gap:10px;padding:6px 0}
 .qs>div::before{content:counter(qs);flex:none;width:24px;height:24px;border-radius:99px;background:var(--ac);color:var(--acf);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.qa{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:4px 0 16px}
+.qa>button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink);font:inherit;font-size:12px;font-weight:700}
+.qa>button .qi{width:50px;height:50px;border-radius:99px;background:var(--ac);color:var(--acf);display:flex;align-items:center;justify-content:center;font-size:21px;box-shadow:0 4px 10px rgba(14,138,121,.3)}
 </style>
 </head>
 <body>
@@ -109,7 +123,7 @@ let D,T='home',Q='',PF='c',E,U=null;
 function load(){try{D=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 D=D||{s:{name:'نام شرکت',cur:'؋',lc:'مشتری',li:'جنس'},items:[],parties:[],docs:[],pays:[],exps:[],seq:1,notifs:[]};
 D.ships=D.ships||[];D.projs=D.projs||[];D.users=D.users||[];D.notifs=D.notifs||[]}
-const APPV='3.9';
+const APPV='4.3';
 const IDB={db:null,open(cb){try{const r=indexedDB.open('nnhesab',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>{IDB.db=r.result;cb()};r.onerror=()=>cb();r.onblocked=()=>cb()}catch(e){cb()}},
 put(v){try{IDB.db&&IDB.db.transaction('k','readwrite').objectStore('k').put(v,'D')}catch(e){}},
 clear(){IDB.delK('D')},
@@ -133,6 +147,9 @@ const bal=p=>balC(p,'AFN'),balU=p=>balC(p,'USD');
 const mny=(a,u)=>{const t=[];if(Math.abs(a)>0.004)t.push(f(a)+' '+cur());if(Math.abs(u)>0.004)t.push(f(u)+' $');return t.join(' + ')||'0'};
 const balTxt=p=>mny(bal(p),balU(p));
 const owes=p=>bal(p)>0.005||balU(p)>0.005;
+function avColor(t){const COL=['#19b87c','#8b5cf6','#f3923a','#3f93ec','#e2355a','#0e8a79','#d8721a'];let h=0;t=String(t||'');for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))>>>0;return COL[h%COL.length]}
+const initial=t=>String(t||'؟').trim().charAt(0).toUpperCase();
+const avatar=t=>'<div class="av" style="background:'+avColor(t)+'">'+esc(initial(t))+'</div>';
 const sumPos=L=>({a:sum(L,p=>Math.max(bal(p),0)),u:sum(L,p=>Math.max(balU(p),0))});
 const cash=c=>D.pays.reduce((a,y)=>a+((y.nc||(y.cur||'AFN')!=(c||'AFN'))?0:(y.dir=='in'?y.amount:-y.amount)),0)-D.exps.reduce((a,e)=>a+((e.cur||'AFN')==(c||'AFN')?e.amount:0),0)+(D.jr||[]).reduce((a,e)=>a+((e.c||'AFN')==(c||'AFN')?e.lines.reduce((b,l)=>b+(l.a=='1001'?(+l.dr||0)-(+l.cr||0):0),0):0),0);
 const cashU=()=>cash('USD');
@@ -235,7 +252,7 @@ function resetAll(){if(confirm('همه اطلاعات و کاربران پاک �
 const V={};
 /* ===== داشبورد: خلاصه مالی (نمودار دایره‌ای)، آخرین فاکتورها، آخرین فعالیت‌ها ===== */
 function finSummary(){const m=pm(today()),rp=repData(x=>pm(x)==m),P=[rp.sales,rp.buys,rp.exp,Math.max(rp.profit-rp.exp,0)];
-const T=P.reduce((a,b)=>a+b,0);if(!T)return '';const COL=['#19b87c','#a96cf2','#e0603a','#3f93ec'];let acc=0;
+const T=P.reduce((a,b)=>a+b,0);if(!T)return '';const COL=['#0e9b84','#7c57e0','#ef5b6a','#f3923a'];let acc=0;
 const stops=P.map((v,i)=>{const a0=acc/T*360;acc+=v;const a1=acc/T*360;return COL[i]+' '+a0.toFixed(1)+'deg '+a1.toFixed(1)+'deg'}).join(',');
 const lbl=[['فروش',rp.sales],['خرید',rp.buys],['مصارف',rp.exp],['سود خالص',rp.net]];
 return '<div class="c"><b>خلاصه وضعیت مالی (ماه '+pml(m)+')</b><div style="display:flex;align-items:center;gap:16px;margin-top:8px;flex-wrap:wrap">'
@@ -251,13 +268,18 @@ D.items.forEach(i=>ev.push({id:i.id,t:'افزودن '+esc(D.s.li)+' تازه: '+
 const L=ev.sort((a,b)=>b.id-a.id).slice(0,6);if(!L.length)return '';
 return '<div class="c"><b>آخرین فعالیت‌ها</b>'+L.map(e=>'<div class="r m" style="padding:4px 0"><span>'+e.ic+' '+e.t+'</span></div>').join('')+'</div>'}
 
+function quickActions(){const items=[['📊','گزارش',"T='rep';render()"],['🛒','فروش',"quick()"],['👤','مشتری',"partyForm()"],['🧾','فاکتور',"newDoc('sale')"]].filter((x,i)=>i>1||isA()||U.role=='acct'||true);
+return '<div class="m" style="margin:10px 0 6px"><b>عملیات سریع</b></div><div class="qa">'+items.map(x=>'<button onclick="'+x[2]+'"><span class="qi">'+x[0]+'</span>'+x[1]+'</button>').join('')+'</div>'}
+
 V.home=()=>{const t=today(),sd=D.docs.filter(d=>d.type=='sale'&&d.date==t);
 const rd=D.docs.filter(d=>d.type=='return'&&d.date==t),gp0=d=>sum(d.lines,l=>(l.price*dr(d)-(l.cost||0))*l.qty)-(d.disc||0)*dr(d);
 const ts=sum(sd.filter(d=>(d.cur||'AFN')=='AFN'),d=>d.total)-sum(rd.filter(d=>(d.cur||'AFN')=='AFN'),d=>d.total),tsU=sum(sd.filter(d=>d.cur=='USD'),d=>d.total)-sum(rd.filter(d=>d.cur=='USD'),d=>d.total),pr=sum(sd,gp0)-sum(rd,gp0);
 const rc=sumPos(D.parties.filter(p=>p.type=='c')),py=sumPos(D.parties.filter(p=>p.type=='s'));
 const low=D.items.filter(i=>stock(i)<=i.min);
-const k=(c1,c2,t,a,u)=>'<div class="k" style="--k1:'+c1+';--k2:'+c2+'"><small>'+t+'</small><b>'+f(a)+' '+cur()+'</b><small>'+(u?f(u)+' $':'&nbsp;')+'</small></div>';
-return licNote()+bkNote()+'<div class="d3">'+k('#19b87c','#0a6b4a','فروش امروز',ts,tsU)+k('#f4b627','#b4700a','فایده امروز (تخمینی)',pr,0)+k('#3f93ec','#1b4c9a','موجودی صندوق',cash(),cashU())+k('#a96cf2','#5a2da6','طلب از '+esc(D.s.lc)+'‌ها',rc.a,rc.u)+'</div>'
+const k=(ic,c1,c2,t,a,u,unit)=>'<div class="k" style="--k1:'+c1+';--k2:'+c2+'"><div class="ic">'+ic+'</div><small>'+t+'</small><b>'+f(a)+(unit?' '+unit:' '+cur())+'</b><small>'+(u?f(u)+' $':'&nbsp;')+'</small></div>';
+const hero='<div class="hero"><div class="r"><div><small>موجودی صندوق</small><b>'+f(cash())+' '+cur()+'</b>'+(cashU()?'<small>'+f(cashU())+' $</small>':'')+'</div><div class="ic" style="width:44px;height:44px;font-size:21px">💳</div></div></div>';
+return licNote()+bkNote()+hero+'<div class="d3">'+k('🛒','var(--k-sale)','var(--k-sale2)','فروش امروز',ts,tsU)+k('📈','var(--k-profit)','var(--k-profit2)','فایده امروز (تخمینی)',pr,0)+k('👥','var(--k-debt)','var(--k-debt2)','طلب از '+esc(D.s.lc)+'‌ها',rc.a,rc.u)+k('📦','var(--k-items)','var(--k-items2)','تعداد '+esc(D.s.li)+'‌ها',D.items.length,0,'قلم')+'</div>'
++quickActions()
 +'<div class="c r"><span>قرض به تمویل‌کننده‌ها</span><b>'+mny(py.a,py.u)+'</b></div>'+chart7()+(isA()||U.role=='acct'?'<div class="bar"><button class="btn g2" onclick="T=\'rep\';render()">گزارش ماهانه</button><button class="btn g2" onclick="T=\'acc\';render()">حسابداری</button></div>':'')
 +'<div class="bar"><button class="btn" onclick="quick()">فروش سریع</button></div><div class="bar"><button class="btn g2" onclick="newDoc(\'sale\')">فروش با فاکتور</button><button class="btn g2" onclick="newDoc(\'purchase\')">خرید جدید</button></div>'
 +'<div class="c"><b>کمبود موجودی ('+low.length+')</b>'+(low.length?low.map(i=>'<div class="r m"><span>'+esc(i.name)+'</span><span class="bad">'+f(stock(i))+'</span></div>').join(''):'<div class="m">همه چیز کافی است.</div>')+'</div>'+finSummary()+latestInv()+activity()+foot()};
@@ -266,10 +288,10 @@ V.inv=()=>'<div class="bar"><button class="btn" onclick="quick()">فروش سر�
 +(D.docs.length?D.docs.slice().reverse().slice(0,60).map(d=>'<div class="c r" onclick="viewDoc('+d.id+')"><div><b>'+d.no+'</b> <span class="t">'+tlab(d)+'</span><br><small>'+esc(pname(d.party))+' · '+fd(d.date)+'</small></div><div><b>'+f(d.total)+' '+cs(d.cur)+'</b>'+(d.type!='return'&&d.paid<d.total?'<br><small class="bad">باقی: '+f(d.total-d.paid)+' '+cs(d.cur)+'</small>':'')+'</div></div>').join(''):'<div class="c m">هنوز فاکتوری ثبت نشده. با «فروش جدید» شروع کنید.</div>');
 
 V.items=()=>'<input placeholder="جستجو..." value="'+esc(Q)+'" oninput="Q=this.value;render(1)">'+'<div class="bar">'+(isS()?'':'<button class="btn" onclick="itemForm()">+ '+esc(D.s.li)+' جدید</button>')+'<button class="btn g2" onclick="printItems()">چاپ A4</button></div>'
-+(D.items.filter(i=>(i.name+(i.barcode||'')+(i.cat||'')).includes(Q)).map(i=>{const s=stock(i);return '<div class="c r" onclick="itemForm('+i.id+')"><div><b>'+esc(i.name)+'</b><br><small>'+(isS()?'':'قیمت خرید: '+f(i.cost)+' · ')+'فروش: '+f(i.price)+(i.cat?' · '+esc(i.cat):'')+'</small></div><div class="'+(s<=i.min?'bad':'')+'"><b>'+f(s)+'</b>'+(i.unit?'<br><small>'+esc(i.unit)+'</small>':'')+'</div></div>'}).join('')||'<div class="c m">چیزی پیدا نشد.</div>');
++(D.items.filter(i=>(i.name+(i.barcode||'')+(i.cat||'')).includes(Q)).map(i=>{const s=stock(i);return '<div class="c r" onclick="itemForm('+i.id+')">'+avatar(i.name)+'<div style="flex:1"><b>'+esc(i.name)+'</b><br><small>'+(isS()?'':'قیمت خرید: '+f(i.cost)+' · ')+'فروش: '+f(i.price)+(i.cat?' · '+esc(i.cat):'')+'</small></div><div class="'+(s<=i.min?'bad':'')+'"><b>'+f(s)+'</b>'+(i.unit?'<br><small>'+esc(i.unit)+'</small>':'')+'</div></div>'}).join('')||'<div class="c m">چیزی پیدا نشد.</div>');
 
 V.parties=()=>(isS()&&(PF='c'),'')+'<div class="bar"><button class="btn'+(PF=='c'?'':' g2')+'" onclick="PF=\'c\';render()">'+esc(D.s.lc)+'‌ها</button>'+(isS()?'':'<button class="btn'+(PF=='s'?'':' g2')+'" onclick="PF=\'s\';render()">تمویل‌کننده‌ها</button>')+'</div><div class="bar"><button class="btn g2" onclick="partyForm()">+ شخص جدید</button><button class="btn g2" onclick="T=\'debts\';render()">باقی‌داری‌ها</button><button class="btn g2" onclick="printParties()">چاپ لیست</button>'+(isS()?'':'<button class="btn g2" onclick="T=\'rcp\';render()">رسیدها</button>')+'</div>'
-+(D.parties.filter(p=>p.type==PF).map(p=>'<div class="c r" onclick="openParty('+p.id+')"><div><b>'+esc(p.name)+'</b><br><small>'+esc(p.phone||'')+'</small></div><b class="'+(owes(p)?'bad':'')+'">'+balTxt(p)+'</b></div>').join('')||'<div class="c m">لیست خالی است.</div>');
++(D.parties.filter(p=>p.type==PF).map(p=>'<div class="c r" onclick="openParty('+p.id+')">'+avatar(p.name)+'<div style="flex:1"><b>'+esc(p.name)+'</b><br><small>'+esc(p.phone||'')+'</small></div><b class="'+(owes(p)?'bad':'')+'">'+balTxt(p)+'</b></div>').join('')||'<div class="c m">لیست خالی است.</div>');
 
 V.cash=()=>'<div class="c"><small>موجودی صندوق</small><b style="font-size:22px;display:block">'+f(cash())+' '+cur()+'</b>'+(cashU()||D.pays.some(y=>y.cur=='USD')?'<b style="font-size:19px;display:block">'+f(cashU())+' $</b>':'')+'</div><div class="bar"><button class="btn" onclick="expForm()">ثبت مصرف</button><button class="btn g2" onclick="T=\'acc\';render()">حسابداری</button></div>'+cashBook();
 
@@ -889,7 +911,7 @@ function qSave(){if(!CT.length)return toast('چیزی انتخاب نشده');E=
 
 const TABS=[['home','🏠 خانه'],['inv','🧾 فاکتور'],['items','📦 اجناس'],['parties','👥 اشخاص'],['cash','💰 صندوق'],['co','🏢 شرکت'],['set','⚙️ تنظیمات'],['help','❓ راهنما']];
 function render(keep){if(licLocked())return lockScreen();if(!U)return;const tb=tabsFor();if(!tb.some(t=>t[0]==T)&&T!='pv'&&T!='debts'&&T!='rep'&&T!='rcp'&&T!='acc')T=tb[0][0];$('#hn').innerHTML=hdr(D.s.name);$('#hu').style.display='';$('#hu').textContent=U.name;renderBell();
-$('#nv').innerHTML=tb.map(t=>'<button class="'+((T==t[0]||(t[0]=='parties'&&(T=='pv'||T=='debts')))?'on':'')+'" onclick="T=\''+t[0]+'\';Q=\'\';render()">'+t[1]+'</button>').join('');
+$('#nv').innerHTML=tb.map(t=>{const sp=t[1].indexOf(' '),ic=sp>0?t[1].slice(0,sp):t[1],lb=sp>0?t[1].slice(sp+1):'';return '<button class="'+((T==t[0]||(t[0]=='parties'&&(T=='pv'||T=='debts')))?'on':'')+'" onclick="T=\''+t[0]+'\';Q=\'\';render()"><span class="ni">'+ic+'</span><span class="nt">'+lb+'</span></button>'}).join('');
 const a=keep&&document.activeElement&&document.activeElement.tagName=='INPUT'?document.activeElement.selectionStart:null;
 $('#app').innerHTML=V[T]();if(a!==null){const e=$('#app input');if(e){e.focus();e.setSelectionRange(a,a)}}else if(!keep)scrollTo(0,0)}
 load();IDB.open(()=>{const go=()=>{licInit(()=>boot());try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}};
